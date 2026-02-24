@@ -49,6 +49,7 @@ const html = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>diffloop</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Cpath d='M16 6A10 10 0 0126 16L29 16 25 21 21 16 24 16A8 8 0 0016 8Z' fill='%233fb950'/%3E%3Cpath d='M16 26A10 10 0 016 16L3 16 7 11 11 16 8 16A8 8 0 0016 24Z' fill='%23f85149'/%3E%3Crect x='13' y='11' width='6' height='2' fill='%233fb950'/%3E%3Crect x='15' y='9' width='2' height='6' fill='%233fb950'/%3E%3Crect x='13' y='19' width='6' height='2' fill='%23f85149'/%3E%3C/svg%3E">
   <style>${diff2htmlCss}\n${appCss}</style>
 </head>
 <body>
