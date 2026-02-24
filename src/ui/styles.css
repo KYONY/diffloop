@@ -23,7 +23,15 @@ body {
 .app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Main layout: sidebar + diff */
+.main-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
 }
 
 /* Header */
@@ -79,7 +87,8 @@ body {
 /* Diff output */
 .diff-container {
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .diff-output {
@@ -170,24 +179,88 @@ body {
   color: #c9d1d9 !important;
 }
 
+/* File collapse chevron */
+.diffloop-collapse-chevron {
+  font-size: 11px;
+  color: #6e7681;
+  margin-right: 4px;
+}
+
+/* Comment badge on file header */
+.diffloop-file-comment-badge {
+  margin-left: auto;
+  font-size: 12px;
+  color: #d29922;
+  padding: 0 8px;
+  flex-shrink: 0;
+}
+
+/* Collapsed file style */
+.diffloop-file-collapsed .d2h-file-header {
+  border-bottom: none !important;
+}
+
 .d2h-code-line {
-  color: #c9d1d9 !important;
+  color: #adbac7 !important;
 }
 
 .d2h-code-side-line {
-  color: #c9d1d9 !important;
+  color: #adbac7 !important;
 }
 
 .d2h-code-line-ctn {
   background: #0d1117 !important;
 }
 
+/* Side-by-side specific overrides */
+.d2h-code-side-line .d2h-code-line-ctn {
+  background: #0d1117 !important;
+}
+
+.d2h-code-side-line {
+  padding-left: 0 !important;
+}
+
+.d2h-code-line {
+  padding-left: 0 !important;
+}
+
+/* Fix layout after removing position:absolute from line numbers */
+.d2h-diff-table {
+  table-layout: auto !important;
+}
+
+.d2h-file-side-diff {
+  overflow-x: auto !important;
+}
+
 .d2h-del {
-  background: #3d1f28 !important;
+  background: #2d1419 !important;
+}
+
+.d2h-del .d2h-code-line-ctn {
+  background: #2d1419 !important;
 }
 
 .d2h-ins {
   background: #1a3a2a !important;
+}
+
+/* Inline word-level change highlights */
+.d2h-del .d2h-change,
+.d2h-code-line del,
+.d2h-code-side-line del {
+  background: #4b1f2e !important;
+  color: #d4a0a0 !important;
+  text-decoration: none !important;
+}
+
+.d2h-ins .d2h-change,
+.d2h-code-line ins,
+.d2h-code-side-line ins {
+  background: #1e4433 !important;
+  color: #a0d4b4 !important;
+  text-decoration: none !important;
 }
 
 .d2h-info {
@@ -201,14 +274,23 @@ body {
 }
 
 .d2h-code-linenumber {
-  color: #8b949e !important;
+  color: #6e7681 !important;
   background: #161b22 !important;
-  border-color: #30363d !important;
+  border-color: #21262d !important;
+  position: relative !important;
 }
 
-.d2h-emptyplaceholder {
+.d2h-code-side-linenumber {
+  color: #6e7681 !important;
   background: #161b22 !important;
-  border-color: #30363d !important;
+  border-color: #21262d !important;
+  position: relative !important;
+}
+
+.d2h-emptyplaceholder,
+.d2h-code-side-emptyplaceholder {
+  background: #161b22 !important;
+  border-color: #21262d !important;
 }
 
 .d2h-file-list-wrapper {
@@ -226,37 +308,101 @@ body {
   color: #c9d1d9 !important;
 }
 
-/* Add comment button on line numbers */
+/* Line number cells: clickable for comments */
+.d2h-code-linenumber {
+  cursor: pointer !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.d2h-code-linenumber:hover {
+  background: #1f6feb26 !important;
+}
+
+/* "+" indicator on line numbers */
 .add-comment-btn {
   position: absolute;
-  left: -6px;
+  left: -2px;
   top: 50%;
   transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  border: none;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #238636;
   color: #fff;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
-  line-height: 1;
-  cursor: pointer;
+  line-height: 18px;
+  text-align: center;
   opacity: 0;
   transition: opacity 0.15s;
   z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  pointer-events: none;
 }
 
 .d2h-code-linenumber:hover .add-comment-btn {
   opacity: 1;
 }
 
-/* Inline comment form */
+/* Drag preview highlight (while dragging) */
+.diffloop-line-drag-preview td {
+  background: #1f6feb12 !important;
+}
+
+/* Selected line highlight (after mouseup, with form) */
+.diffloop-line-selected td {
+  background: #1f6feb1a !important;
+}
+
+/* Commented line highlight */
+.diffloop-line-commented td {
+  background: #d299220d !important;
+  border-left: 3px solid #d29922 !important;
+}
+
+.diffloop-line-commented .d2h-code-linenumber {
+  border-left: 3px solid #d29922 !important;
+}
+
+/* Comment indicator on line number (clickable) */
+.diffloop-comment-indicator {
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  line-height: 1;
+  z-index: 15;
+  cursor: pointer;
+}
+
+.diffloop-comment-indicator:hover {
+  transform: translateY(-50%) scale(1.3);
+}
+
+/* Delete button in thread editor */
+.btn-delete {
+  border-color: #f85149 !important;
+  color: #f85149 !important;
+  margin-right: auto;
+}
+
+.btn-delete:hover {
+  background: #f851491a !important;
+}
+
+/* Inline comment form (inserted as table row) */
+.diffloop-inline-form-row {
+  background: none !important;
+}
+
+.diffloop-inline-form-cell {
+  padding: 0 !important;
+  border: none !important;
+}
+
 .inline-comment-form {
-  margin: 8px 20px;
+  margin: 4px 8px 4px 40px;
   padding: 12px;
   background: #161b22;
   border: 1px solid #30363d;
@@ -459,4 +605,175 @@ body {
 .message-text {
   font-size: 13px;
   white-space: pre-wrap;
+}
+
+/* File tree sidebar */
+.file-tree {
+  width: 240px;
+  min-width: 240px;
+  background: #0d1117;
+  border-right: 1px solid #30363d;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.2s, min-width 0.2s;
+}
+
+.file-tree-collapsed {
+  width: 40px;
+  min-width: 40px;
+}
+
+.file-tree-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-bottom: 1px solid #30363d;
+  background: #161b22;
+}
+
+.file-tree-collapsed .file-tree-header {
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.file-tree-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.file-tree-toggle {
+  border: none;
+  background: transparent;
+  color: #8b949e;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.file-tree-toggle:hover {
+  background: #21262d;
+  color: #c9d1d9;
+}
+
+.file-tree-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.tree-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #c9d1d9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-item:hover {
+  background: #161b22;
+}
+
+.tree-dir-name {
+  color: #8b949e;
+}
+
+.tree-arrow {
+  font-size: 10px;
+  color: #484f58;
+  width: 10px;
+  flex-shrink: 0;
+}
+
+.tree-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.tree-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-file-active {
+  background: #1f6feb26 !important;
+  color: #58a6ff;
+}
+
+.tree-status {
+  font-size: 11px;
+  font-weight: 700;
+  width: 14px;
+  flex-shrink: 0;
+  text-align: center;
+  font-family: monospace;
+}
+
+.status-added {
+  color: #3fb950;
+}
+
+.status-deleted {
+  color: #f85149;
+}
+
+.status-modified {
+  color: #d29922;
+}
+
+.status-renamed {
+  color: #a371f7;
+}
+
+/* Comment badge in file tree sidebar */
+.tree-comment-badge {
+  font-size: 11px;
+  color: #d29922;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.tree-changes {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+  font-size: 11px;
+  font-family: monospace;
+  flex-shrink: 0;
+}
+
+.tree-additions {
+  color: #3fb950;
+}
+
+.tree-deletions {
+  color: #f85149;
+}
+
+/* Scrollbar styling for file tree */
+.file-tree-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.file-tree-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.file-tree-list::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 3px;
+}
+
+.file-tree-list::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
 }

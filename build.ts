@@ -7,7 +7,7 @@ const UI = join(ROOT, "src", "ui");
 
 mkdirSync(DIST, { recursive: true });
 
-// Bundle the app TSX into a single JS string
+// Bundle the app TSX into a JS file
 const appBundle = await Bun.build({
   entrypoints: [join(UI, "app.tsx")],
   minify: true,
@@ -28,6 +28,10 @@ if (!appBundle.success) {
 
 const jsCode = await appBundle.outputs[0]!.text();
 
+// Write JS bundle separately
+const jsPath = join(DIST, "app.js");
+Bun.write(jsPath, jsCode);
+
 // Read CSS
 const appCss = readFileSync(join(UI, "styles.css"), "utf-8");
 
@@ -38,16 +42,24 @@ const diff2htmlCssPath = resolve(
 );
 const diff2htmlCss = readFileSync(diff2htmlCssPath, "utf-8");
 
-// Read HTML template
-const htmlTemplate = readFileSync(join(UI, "index.html"), "utf-8");
+// Build HTML with CSS inlined, JS loaded externally
+const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>diffloop</title>
+  <style>${diff2htmlCss}\n${appCss}</style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>`;
 
-// Inject everything
-const finalHtml = htmlTemplate
-  .replace("/* __STYLES__ */", diff2htmlCss + "\n" + appCss)
-  .replace("/* __SCRIPT__ */", jsCode);
+const htmlPath = join(DIST, "index.html");
+Bun.write(htmlPath, html);
 
-const outPath = join(DIST, "index.html");
-Bun.write(outPath, finalHtml);
-
-const sizeKb = (new Blob([finalHtml]).size / 1024).toFixed(1);
-console.log(`Built: ${outPath} (${sizeKb} KB)`);
+const htmlSize = (new Blob([html]).size / 1024).toFixed(1);
+const jsSize = (new Blob([jsCode]).size / 1024).toFixed(1);
+console.log(`Built: ${htmlPath} (${htmlSize} KB) + app.js (${jsSize} KB)`);

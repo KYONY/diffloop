@@ -10,6 +10,8 @@ export interface Thread {
   id: string;
   file: string;
   line: number;
+  endLine?: number;
+  lines?: number[];
   side: "old" | "new";
   type: CommentType;
   messages: Message[];
@@ -44,3 +46,4 @@ export interface StdinInput {
     text: string;
   }>;
 }
+// test

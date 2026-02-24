@@ -2,13 +2,13 @@ import type {
   DiffData,
   ReviewState,
   Decision,
-  StdinInput,
 } from "../shared/types.ts";
 
 interface ServerOptions {
   diffData: DiffData;
   state: ReviewState;
   htmlContent?: string;
+  jsContent?: string;
   port?: number;
 }
 
@@ -16,7 +16,7 @@ export function createServer(options: ServerOptions): {
   server: ReturnType<typeof Bun.serve>;
   waitForDecision: () => Promise<Decision>;
 } {
-  const { diffData, state, htmlContent, port } = options;
+  const { diffData, state, htmlContent, jsContent, port } = options;
 
   let resolveDecision: ((d: Decision) => void) | null = null;
   const decisionPromise = new Promise<Decision>((resolve) => {
@@ -28,11 +28,18 @@ export function createServer(options: ServerOptions): {
     fetch(req) {
       const url = new URL(req.url);
 
-      // Serve UI
+      // Serve HTML
       if (url.pathname === "/") {
         const html = htmlContent ?? getFallbackHtml();
         return new Response(html, {
           headers: { "Content-Type": "text/html; charset=utf-8" },
+        });
+      }
+
+      // Serve JS bundle
+      if (url.pathname === "/app.js" && jsContent) {
+        return new Response(jsContent, {
+          headers: { "Content-Type": "application/javascript; charset=utf-8" },
         });
       }
 

@@ -45,15 +45,55 @@ function parseDiffFiles(rawDiff: string): FileDiff[] {
   return files;
 }
 
+async function getUntrackedDiff(): Promise<string> {
+  // Find untracked files (not in .gitignore)
+  const output = await exec([
+    "git",
+    "ls-files",
+    "--others",
+    "--exclude-standard",
+  ]);
+  const untrackedFiles = output
+    .split("\n")
+    .map((f) => f.trim())
+    .filter(Boolean);
+
+  if (untrackedFiles.length === 0) return "";
+
+  // Generate diff for each untracked file using --no-index
+  const diffs: string[] = [];
+  for (const file of untrackedFiles) {
+    const diff = await exec([
+      "git",
+      "diff",
+      "--no-index",
+      "--",
+      "/dev/null",
+      file,
+    ]);
+    if (diff.trim()) {
+      // Fix the header: --no-index produces "a//dev/null b/file", normalize it
+      const fixed = diff
+        .replace(/^diff --git a\/\/dev\/null b\/(.+)/m, "diff --git a/$1 b/$1")
+        .replace(/^--- a\/\/dev\/null/m, "--- /dev/null");
+      diffs.push(fixed);
+    }
+  }
+
+  return diffs.join("\n");
+}
+
 export async function collectDiffs(): Promise<DiffData> {
-  const [unstaged, staged] = await Promise.all([
+  const [unstaged, staged, untracked] = await Promise.all([
     exec(["git", "diff"]),
     exec(["git", "diff", "--staged"]),
+    getUntrackedDiff(),
   ]);
 
-  const rawUnifiedDiff = [unstaged, staged].filter(Boolean).join("\n");
-  const combined = [unstaged, staged].filter(Boolean).join("\n");
-  const files = parseDiffFiles(combined);
+  const rawUnifiedDiff = [unstaged, staged, untracked]
+    .filter(Boolean)
+    .join("\n");
+  const files = parseDiffFiles(rawUnifiedDiff);
 
   return { files, rawUnifiedDiff };
 }

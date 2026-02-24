@@ -24,7 +24,19 @@ function openBrowser(url: string): void {
       : platform === "win32"
         ? "start"
         : "xdg-open";
-  Bun.spawn([cmd, url], { stdout: "ignore", stderr: "ignore" });
+
+  try {
+    const proc = Bun.spawn([cmd, url], {
+      stdout: "pipe",
+      stderr: "pipe",
+      stdin: "ignore",
+    });
+    // Consume and discard all output
+    proc.stdout.pipeTo(new WritableStream());
+    proc.stderr.pipeTo(new WritableStream());
+  } catch {
+    // Browser failed to open, user will use the URL manually
+  }
 }
 
 async function main(): Promise<void> {
@@ -32,25 +44,35 @@ async function main(): Promise<void> {
   const state = buildState(input);
   const diffData = await collectDiffs();
 
-  // Try to load built HTML
+  // Try to load built assets
   let htmlContent: string | undefined;
-  const distPath = join(import.meta.dir, "..", "dist", "index.html");
-  const distFile = Bun.file(distPath);
-  if (await distFile.exists()) {
-    htmlContent = await distFile.text();
+  let jsContent: string | undefined;
+  const distDir = join(import.meta.dir, "..", "dist");
+
+  const htmlFile = Bun.file(join(distDir, "index.html"));
+  if (await htmlFile.exists()) {
+    htmlContent = await htmlFile.text();
+  }
+
+  const jsFile = Bun.file(join(distDir, "app.js"));
+  if (await jsFile.exists()) {
+    jsContent = await jsFile.text();
   }
 
   const { server, waitForDecision } = createServer({
     diffData,
     state,
     htmlContent,
+    jsContent,
   });
 
   const url = `http://localhost:${server.port}`;
-  console.error(`diffloop v0.1.0 — ${url}`);
-  console.error(
-    `Iteration ${state.iteration} | ${diffData.files.length} file(s) changed`
-  );
+  console.error(`\n  diffloop v0.1.0\n`);
+  console.error(`  URL:       ${url}`);
+  console.error(`  Iteration: ${state.iteration}`);
+  console.error(`  Files:     ${diffData.files.length} changed`);
+  console.error(`\n  Open the URL above in your browser.`);
+  console.error(`  Approve or Submit Review to continue.\n`);
 
   openBrowser(url);
 
