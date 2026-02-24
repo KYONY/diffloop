@@ -1,0 +1,6 @@
+.vector_memory/
+.serena/cache/
+.claude/compact-context.md
+node_modules/
+dist/
+bun.lockb
