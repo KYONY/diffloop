@@ -28,6 +28,9 @@ Agent makes changes → tries to commit
   │                      Hook fires again → you see new diffs
   │                      Loop until satisfied
   │
+  ├── Save & Close ───→ Commit deferred, state saved
+  │                      Resume on next git commit
+  │
   └── Approve ─────────→ Commit proceeds
 ```
 
@@ -124,6 +127,7 @@ After selecting, choose comment type:
 
 | Button | What happens |
 |--------|-------------|
+| **Save & Close** | Saves review state, closes browser. Commit deferred. Resume on next `git commit` |
 | **Submit Review** | Sends feedback to the agent. Agent processes fixes, then re-opens DiffLoop |
 | **Approve** | Ends the review loop. Commit proceeds |
 

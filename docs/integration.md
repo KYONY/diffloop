@@ -45,17 +45,17 @@ Agent runs: git commit -m "..."
 │  You review diffs              │
 │  You add comments              │
 │                                │
-│  ┌─ Approve ─┐  ┌─ Submit ──┐ │
-│  │ exit: allow│  │ exit: deny│ │
-│  └────────────┘  └───────────┘ │
-└────────────────────────────────┘
-        │                 │
-        ▼                 ▼
-  Commit proceeds   Commit blocked
-                    Agent sees feedback
-                    Agent fixes code
-                    Agent tries commit again
-                    Hook fires again → loop
+│  ┌─ Approve ─┐  ┌─ Submit ──┐  ┌─ Save ────┐ │
+│  │ exit: allow│  │ exit: deny│  │ exit: save │ │
+│  └────────────┘  └───────────┘  └────────────┘ │
+└────────────────────────────────────────────────┘
+        │                 │                │
+        ▼                 ▼                ▼
+  Commit proceeds   Commit blocked   Commit deferred
+                    Agent sees        State saved
+                    feedback          Resume on next
+                    Agent fixes       git commit
+                    code, retries
 ```
 
 ### Opt-out
@@ -131,6 +131,16 @@ The agent then:
 ### On Approve (commit proceeds)
 
 The hook allows the commit with `permissionDecision: "allow"`. The `git commit` command executes normally.
+
+### On Save & Close (commit deferred)
+
+The hook blocks the commit with `permissionDecision: "deny"` and a short message:
+
+```
+DiffLoop: Review saved — commit deferred. Resume by running git commit again.
+```
+
+No thread feedback is provided. The agent should understand that no code changes are needed. When the user triggers `git commit` again, DiffLoop reopens with the saved threads at the same iteration.
 
 ## Tips
 

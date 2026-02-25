@@ -62,10 +62,13 @@ stateDiagram-v2
         CollectDiffs --> StartServer
         StartServer --> WaitForUser
         WaitForUser --> Submit: Submit Review
+        WaitForUser --> Save: Save & Close
         WaitForUser --> Approve: Approve
     }
 
     Submit --> AgentProcesses: stdout {feedback, state}
+    Save --> SaveState: stdout {decision: "save", state}
+    SaveState --> [*]: commit deferred, resume on next git commit
 
     state AgentProcesses {
         [*] --> ReadFeedback
@@ -82,10 +85,12 @@ stateDiagram-v2
         ShowNewDiffs --> ShowResponses: Agent answers in threads
         ShowResponses --> UserReviews
         UserReviews --> SubmitAgain: Submit Review
+        UserReviews --> SaveN: Save & Close
         UserReviews --> ApproveN: Approve
     }
 
     SubmitAgain --> AgentProcesses
+    SaveN --> SaveState
     Approve --> [*]: stdout {decision: "allow"}
     ApproveN --> [*]: stdout {decision: "allow"}
 ```
@@ -109,6 +114,7 @@ graph TD
     TE --> MT[MessageText<br/>Markdown rendering]
 
     FILETREE --> |click| DIFFVIEW
+    TOOLBAR --> |save| API3["/api/save"]
     TOOLBAR --> |submit| API["/api/submit"]
     TOOLBAR --> |approve| API2["/api/approve"]
 

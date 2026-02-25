@@ -84,6 +84,17 @@ export function createServer(options: ServerOptions): {
         })();
       }
 
+      // API: save & close (defer commit without feedback)
+      if (url.pathname === "/api/save" && req.method === "POST") {
+        return (async () => {
+          const body = (await req.json()) as { state: ReviewState };
+          body.state.previousRawDiff = diffData.rawUnifiedDiff;
+          body.state.iteration = body.state.iteration - 1;
+          resolveDecision?.({ decision: "save", state: body.state });
+          return Response.json({ ok: true });
+        })();
+      }
+
       // API: read file content for full-file viewer
       if (url.pathname === "/api/file" && req.method === "GET") {
         const filePath = url.searchParams.get("path");

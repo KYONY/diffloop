@@ -39,7 +39,8 @@ export interface DiffData {
 
 export type Decision =
   | { decision: "allow" }
-  | { decision: "deny"; feedback: string; state: ReviewState };
+  | { decision: "deny"; feedback: string; state: ReviewState }
+  | { decision: "save"; state: ReviewState };
 
 export interface StdinInput {
   state?: ReviewState;

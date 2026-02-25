@@ -125,6 +125,53 @@ describe("CLI integration", () => {
     expect(text).toContain("changed");
   }, 15000);
 
+  test("save flow: stdin → server → stdout {decision: save}", async () => {
+    const proc = Bun.spawn(["bun", "src/cli.ts"], {
+      env: { ...process.env, DIFFLOOP_NO_BROWSER: "1" },
+      stdin: new Blob(["{}"]),
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+
+    const stderr = collectStderr(proc.stderr);
+    const port = await stderr.waitForPort();
+
+    const saveBody = {
+      state: {
+        iteration: 1,
+        threads: [
+          {
+            id: "t1",
+            file: "test.ts",
+            line: 1,
+            side: "new",
+            type: "fix",
+            messages: [
+              { author: "user", text: "fix this", timestamp: Date.now() },
+            ],
+            resolved: false,
+          },
+        ],
+      },
+    };
+
+    const res = await fetch(`http://localhost:${port}/api/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(saveBody),
+    });
+    expect(res.status).toBe(200);
+
+    const stdout = await new Response(proc.stdout).text();
+    const decision = JSON.parse(stdout);
+    expect(decision.decision).toBe("save");
+    expect(decision.state.threads).toHaveLength(1);
+    expect(decision.state.iteration).toBe(0);
+
+    await proc.exited;
+    expect(proc.exitCode).toBe(0);
+  }, 15000);
+
   test("iteration 2 preserves threads from stdin", async () => {
     const input = {
       state: {

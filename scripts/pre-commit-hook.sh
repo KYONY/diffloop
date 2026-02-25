@@ -69,6 +69,17 @@ if [ "$DECISION" = "allow" ]; then
     }
   }'
   exit 0
+elif [ "$DECISION" = "save" ]; then
+  # Saved — persist state, block commit with short message (no feedback)
+  echo "$RESULT" | jq '{state: .state}' > "$STATE_FILE"
+  jq -n '{
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "deny",
+      permissionDecisionReason: "DiffLoop: Review saved — commit deferred. Resume by running git commit again."
+    }
+  }'
+  exit 0
 else
   # Denied — save state and block commit with feedback
   echo "$RESULT" | jq '{state: .state}' > "$STATE_FILE"

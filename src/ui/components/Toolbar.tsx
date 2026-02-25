@@ -34,6 +34,15 @@ export function Toolbar({ state }: Props) {
     window.close();
   }
 
+  async function handleSave() {
+    await fetch("/api/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ state }),
+    });
+    window.close();
+  }
+
   return (
     <div class="toolbar">
       <div class="toolbar-stats">
@@ -45,6 +54,9 @@ export function Toolbar({ state }: Props) {
         )}
       </div>
       <div class="toolbar-actions">
+        <button class="btn btn-save" onClick={handleSave}>
+          Save & Close
+        </button>
         <button class="btn btn-submit" onClick={handleSubmit}>
           Submit Review
           {openThreads > 0 && ` (${openThreads})`}

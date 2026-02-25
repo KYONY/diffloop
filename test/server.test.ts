@@ -125,6 +125,55 @@ describe("HTTP server", () => {
     });
   });
 
+  test("POST /api/save resolves with save + state", async () => {
+    const { server: s, waitForDecision } = setup();
+    const saveState: ReviewState = {
+      iteration: 1,
+      threads: [
+        {
+          id: "t1",
+          file: "foo.ts",
+          line: 5,
+          side: "new" as const,
+          type: "fix" as const,
+          messages: [
+            { author: "user" as const, text: "change var name", timestamp: 1000 },
+          ],
+          resolved: false,
+        },
+      ],
+    };
+    const res = await fetch(`http://localhost:${s.port}/api/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ state: saveState }),
+    });
+    expect(res.status).toBe(200);
+    const decision = await waitForDecision();
+    expect(decision.decision).toBe("save");
+    if (decision.decision === "save") {
+      expect(decision.state.iteration).toBe(0);
+      expect(decision.state.threads).toHaveLength(1);
+      expect(decision.state.previousRawDiff).toBe(mockDiff.rawUnifiedDiff);
+    }
+  });
+
+  test("POST /api/save works with empty threads", async () => {
+    const { server: s, waitForDecision } = setup();
+    const res = await fetch(`http://localhost:${s.port}/api/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ state: { iteration: 1, threads: [] } }),
+    });
+    expect(res.status).toBe(200);
+    const decision = await waitForDecision();
+    expect(decision.decision).toBe("save");
+    if (decision.decision === "save") {
+      expect(decision.state.threads).toHaveLength(0);
+      expect(decision.state.iteration).toBe(0);
+    }
+  });
+
   test("unknown route returns 404", async () => {
     const { server: s } = setup();
     const res = await fetch(`http://localhost:${s.port}/nonexistent`);

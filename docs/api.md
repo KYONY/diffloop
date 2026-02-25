@@ -126,6 +126,30 @@ User submits review feedback. Agent will process and re-open DiffLoop.
 }
 ```
 
+### `POST /api/save`
+
+User saves review state and closes browser. Commit is deferred without sending feedback.
+
+**Request body:**
+```json
+{
+  "state": {
+    "iteration": 1,
+    "threads": [...]
+  }
+}
+```
+
+**Effect:** Server resolves and shuts down. CLI writes to stdout:
+```json
+{
+  "decision": "save",
+  "state": { "iteration": 0, "threads": [...] }
+}
+```
+
+Note: Iteration is decremented by 1 so that on resume, `buildState()` restores the original value.
+
 ---
 
 ## CLI Contract
@@ -151,7 +175,8 @@ JSON decision output:
 ```typescript
 type Decision =
   | { decision: "allow" }
-  | { decision: "deny"; feedback: string; state: ReviewState };
+  | { decision: "deny"; feedback: string; state: ReviewState }
+  | { decision: "save"; state: ReviewState };
 ```
 
 ### Stderr
