@@ -948,17 +948,11 @@ body {
 }
 
 /* Markdown toolbar */
-.comment-form-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
 .md-toolbar {
   display: flex;
   align-items: center;
   gap: 1px;
+  padding: 2px 0;
 }
 
 .md-toolbar-sep {

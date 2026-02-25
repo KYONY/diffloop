@@ -565,7 +565,12 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
     const threadLines = thread.lines ?? [thread.line];
     const maxLine = Math.max(...threadLines);
     const lastRows = getRowsByLines(fileWrapper, [maxLine]);
-    const lastRow = lastRows[lastRows.length - 1];
+    let lastRow = lastRows[lastRows.length - 1];
+    // Fallback: if exact line not found, use last row in file
+    if (!lastRow) {
+      const allRows = fileWrapper.querySelectorAll("tr");
+      lastRow = allRows[allRows.length - 1] as HTMLElement | undefined;
+    }
     if (!lastRow) return;
 
     const tr = document.createElement("tr");

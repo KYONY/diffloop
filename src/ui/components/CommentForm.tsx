@@ -29,27 +29,25 @@ export function CommentForm({ onSubmit, onCancel }: Props) {
 
   return (
     <form class="comment-form" onSubmit={handleSubmit}>
-      <div class="comment-form-toolbar">
-        <div class="comment-form-type">
-          <button
-            type="button"
-            class={`type-btn ${type === "fix" ? "active" : ""}`}
-            onClick={() => setType("fix")}
-            title="Request a code fix"
-          >
-            Fix
-          </button>
-          <button
-            type="button"
-            class={`type-btn ${type === "question" ? "active" : ""}`}
-            onClick={() => setType("question")}
-            title="Ask a question"
-          >
-            Question
-          </button>
-        </div>
-        <MarkdownToolbar textareaRef={textareaRef} text={text} setText={setText} />
+      <div class="comment-form-type">
+        <button
+          type="button"
+          class={`type-btn ${type === "fix" ? "active" : ""}`}
+          onClick={() => setType("fix")}
+          title="Request a code fix"
+        >
+          Fix
+        </button>
+        <button
+          type="button"
+          class={`type-btn ${type === "question" ? "active" : ""}`}
+          onClick={() => setType("question")}
+          title="Ask a question"
+        >
+          Question
+        </button>
       </div>
+      <MarkdownToolbar textareaRef={textareaRef} text={text} setText={setText} />
       <textarea
         ref={textareaRef}
         class="comment-textarea"

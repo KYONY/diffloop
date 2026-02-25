@@ -83,25 +83,23 @@ export function ThreadEditor({ thread, onSave, onDelete, onResolve, onCancel }: 
 
       {/* Form: new reply (if agent responded) or edit (if no response yet) */}
       <form class="comment-form" onSubmit={handleSave}>
-        <div class="comment-form-toolbar">
-          <div class="comment-form-type">
-            <button
-              type="button"
-              class={`type-btn ${type === "fix" ? "active" : ""}`}
-              onClick={() => setType("fix")}
-            >
-              Fix
-            </button>
-            <button
-              type="button"
-              class={`type-btn ${type === "question" ? "active" : ""}`}
-              onClick={() => setType("question")}
-            >
-              Question
-            </button>
-          </div>
-          <MarkdownToolbar textareaRef={textareaRef} text={text} setText={setText} />
+        <div class="comment-form-type">
+          <button
+            type="button"
+            class={`type-btn ${type === "fix" ? "active" : ""}`}
+            onClick={() => setType("fix")}
+          >
+            Fix
+          </button>
+          <button
+            type="button"
+            class={`type-btn ${type === "question" ? "active" : ""}`}
+            onClick={() => setType("question")}
+          >
+            Question
+          </button>
         </div>
+        <MarkdownToolbar textareaRef={textareaRef} text={text} setText={setText} />
         <textarea
           ref={textareaRef}
           class="comment-textarea"
