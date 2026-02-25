@@ -8,6 +8,7 @@ import { Toolbar } from "./components/Toolbar.tsx";
 function App() {
   const [diffData, setDiffData] = useState<DiffData | null>(null);
   const [state, setState] = useState<ReviewState | null>(null);
+  const [branch, setBranch] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [activeFile, setActiveFile] = useState<string | null>(null);
 
@@ -15,10 +16,13 @@ function App() {
     Promise.all([
       fetch("/api/diff").then((r) => r.json() as Promise<DiffData>),
       fetch("/api/state").then((r) => r.json() as Promise<ReviewState>),
-    ]).then(([diff, reviewState]) => {
+      fetch("/api/meta").then((r) => r.json() as Promise<{ branch: string }>),
+    ]).then(([diff, reviewState, meta]) => {
       setDiffData(diff);
       setState(reviewState);
+      setBranch(meta.branch);
       setLoading(false);
+      document.title = "DL — DiffLoop";
     });
   }, []);
 
@@ -52,7 +56,7 @@ function App() {
   if (diffData.files.length === 0) {
     return (
       <div class="empty">
-        <h1>diffloop</h1>
+        <h1>DiffLoop</h1>
         <p>No changes detected.</p>
         <Toolbar state={state} onStateChange={setState} />
       </div>
@@ -62,7 +66,8 @@ function App() {
   return (
     <div class="app">
       <header class="header">
-        <h1>diffloop</h1>
+        <h1>DiffLoop</h1>
+        {branch && <span class="header-branch">{branch}</span>}
         <span class="iteration">Iteration {state.iteration}</span>
         <span class="file-count">{diffData.files.length} file(s)</span>
       </header>

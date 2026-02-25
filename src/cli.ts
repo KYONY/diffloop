@@ -39,10 +39,25 @@ function openBrowser(url: string): void {
   }
 }
 
+async function getGitBranch(): Promise<string> {
+  try {
+    const proc = Bun.spawn(["git", "rev-parse", "--abbrev-ref", "HEAD"], {
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    const text = await new Response(proc.stdout).text();
+    await proc.exited;
+    return text.trim() || "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
 async function main(): Promise<void> {
   const input = await readStdin();
   const state = buildState(input);
   const diffData = await collectDiffs();
+  const branch = await getGitBranch();
 
   // Try to load built assets
   let htmlContent: string | undefined;
@@ -62,12 +77,13 @@ async function main(): Promise<void> {
   const { server, waitForDecision } = createServer({
     diffData,
     state,
+    branch,
     htmlContent,
     jsContent,
   });
 
   const url = `http://localhost:${server.port}`;
-  console.error(`\n  diffloop v0.1.0\n`);
+  console.error(`\n  DiffLoop v0.1.0\n`);
   console.error(`  URL:       ${url}`);
   console.error(`  Iteration: ${state.iteration}`);
   console.error(`  Files:     ${diffData.files.length} changed`);

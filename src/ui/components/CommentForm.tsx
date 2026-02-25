@@ -50,33 +50,89 @@ export function CommentForm({ onSubmit, onCancel }: Props) {
     }
   }
 
+  function insertBold() {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = text.slice(start, end);
+    const before = text.slice(0, start);
+    const after = text.slice(end);
+    const newText = selected
+      ? `${before}**${selected}**${after}`
+      : `${before}****${after}`;
+    setText(newText);
+    setTimeout(() => {
+      ta.selectionStart = ta.selectionEnd = selected ? end + 4 : start + 2;
+      ta.focus();
+    }, 0);
+  }
+
+  function insertInlineCode() {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = text.slice(start, end);
+    const before = text.slice(0, start);
+    const after = text.slice(end);
+    const newText = selected
+      ? `${before}\`${selected}\`${after}`
+      : `${before}\`\`${after}`;
+    setText(newText);
+    setTimeout(() => {
+      ta.selectionStart = ta.selectionEnd = selected ? end + 2 : start + 1;
+      ta.focus();
+    }, 0);
+  }
+
   return (
     <form class="comment-form" onSubmit={handleSubmit}>
-      <div class="comment-form-type">
-        <button
-          type="button"
-          class={`type-btn ${type === "fix" ? "active" : ""}`}
-          onClick={() => setType("fix")}
-          title="Request a code fix"
-        >
-          Fix
-        </button>
-        <button
-          type="button"
-          class={`type-btn ${type === "question" ? "active" : ""}`}
-          onClick={() => setType("question")}
-          title="Ask a question"
-        >
-          Question
-        </button>
-        <button
-          type="button"
-          class="type-btn code-insert-btn"
-          onClick={insertCodeBlock}
-          title="Insert code block"
-        >
-          {"</>"}
-        </button>
+      <div class="comment-form-toolbar">
+        <div class="comment-form-type">
+          <button
+            type="button"
+            class={`type-btn ${type === "fix" ? "active" : ""}`}
+            onClick={() => setType("fix")}
+            title="Request a code fix"
+          >
+            Fix
+          </button>
+          <button
+            type="button"
+            class={`type-btn ${type === "question" ? "active" : ""}`}
+            onClick={() => setType("question")}
+            title="Ask a question"
+          >
+            Question
+          </button>
+        </div>
+        <div class="comment-form-md-tools">
+          <button
+            type="button"
+            class="md-tool-btn"
+            onClick={insertBold}
+            title="Bold (**text**)"
+          >
+            B
+          </button>
+          <button
+            type="button"
+            class="md-tool-btn"
+            onClick={insertInlineCode}
+            title="Inline code (`code`)"
+          >
+            {"<>"}
+          </button>
+          <button
+            type="button"
+            class="md-tool-btn"
+            onClick={insertCodeBlock}
+            title="Code block (```code```)"
+          >
+            {"</>"}
+          </button>
+        </div>
       </div>
       <textarea
         ref={textareaRef}

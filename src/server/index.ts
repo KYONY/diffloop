@@ -7,6 +7,7 @@ import type {
 interface ServerOptions {
   diffData: DiffData;
   state: ReviewState;
+  branch?: string;
   htmlContent?: string;
   jsContent?: string;
   port?: number;
@@ -16,7 +17,7 @@ export function createServer(options: ServerOptions): {
   server: ReturnType<typeof Bun.serve>;
   waitForDecision: () => Promise<Decision>;
 } {
-  const { diffData, state, htmlContent, jsContent, port } = options;
+  const { diffData, state, branch, htmlContent, jsContent, port } = options;
 
   let resolveDecision: ((d: Decision) => void) | null = null;
   const decisionPromise = new Promise<Decision>((resolve) => {
@@ -51,6 +52,11 @@ export function createServer(options: ServerOptions): {
       // API: get state (threads, iteration)
       if (url.pathname === "/api/state" && req.method === "GET") {
         return Response.json(state);
+      }
+
+      // API: get metadata (branch, project)
+      if (url.pathname === "/api/meta" && req.method === "GET") {
+        return Response.json({ branch: branch ?? "unknown" });
       }
 
       // API: approve
