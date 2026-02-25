@@ -385,6 +385,16 @@ body {
   font-size: 11px;
 }
 
+.diffloop-comment-indicator.resolved {
+  opacity: 0.5;
+  font-size: 11px;
+}
+
+/* Resolved thread line highlight (dimmed) */
+.diffloop-line-resolved td {
+  opacity: 0.45;
+}
+
 /* Delete button in thread editor */
 .btn-delete {
   border-color: #f85149 !important;
@@ -840,4 +850,41 @@ body {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+}
+
+/* Code block in messages */
+.code-block {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  margin: 4px 0;
+  color: #c9d1d9;
+  white-space: pre;
+}
+
+/* Code insert button */
+.code-insert-btn {
+  margin-left: auto;
+  font-family: monospace;
+  font-weight: 700;
+}
+
+/* Resolve button in thread editor */
+.btn-resolve {
+  padding: 4px 12px;
+  border: 1px solid #238636;
+  border-radius: 6px;
+  background: transparent;
+  color: #3fb950;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-resolve:hover {
+  background: #2386361a;
 }

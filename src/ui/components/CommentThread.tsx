@@ -1,4 +1,5 @@
 import type { Thread } from "../../shared/types.ts";
+import { MessageText } from "./MessageText.tsx";
 
 interface Props {
   thread: Thread;
@@ -64,7 +65,7 @@ export function CommentThread({ thread, onResolve, onUnresolve }: Props) {
             <span class="message-author">
               {msg.author === "model" ? "Agent" : "You"}
             </span>
-            <div class="message-text">{msg.text}</div>
+            <div class="message-text"><MessageText text={msg.text} /></div>
           </div>
         ))}
       </div>

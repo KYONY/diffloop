@@ -29,6 +29,7 @@ const SELECTED_LINE_CLASS = "diffloop-line-selected";
 const COMMENTED_LINE_CLASS = "diffloop-line-commented";
 const COMMENT_INDICATOR_CLASS = "diffloop-comment-indicator";
 const ITERATION_CHANGED_CLASS = "diffloop-line-iteration-changed";
+const RESOLVED_LINE_CLASS = "diffloop-line-resolved";
 
 /**
  * Parse a unified diff into a map of filename → set of signed lines ("+content" or "-content").
@@ -421,7 +422,7 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
     }
   }, [html, state.threads]);
 
-  // Mark lines that have comments
+  // Mark lines that have comments (both resolved and unresolved)
   useEffect(() => {
     const container = diffRef.current;
     if (!container) return;
@@ -430,20 +431,22 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
       .querySelectorAll(`.${COMMENTED_LINE_CLASS}`)
       .forEach((el) => el.classList.remove(COMMENTED_LINE_CLASS));
     container
+      .querySelectorAll(`.${RESOLVED_LINE_CLASS}`)
+      .forEach((el) => el.classList.remove(RESOLVED_LINE_CLASS));
+    container
       .querySelectorAll(`.${COMMENT_INDICATOR_CLASS}`)
       .forEach((el) => el.remove());
 
     for (const thread of state.threads) {
-      if (thread.resolved) continue;
-
       const fileWrapper = findFileWrapper(container, thread.file);
       if (!fileWrapper) continue;
 
       const threadLines = thread.lines ?? [thread.line];
       const rows = getRowsByLines(fileWrapper, threadLines);
 
+      const lineClass = thread.resolved ? RESOLVED_LINE_CLASS : COMMENTED_LINE_CLASS;
       for (const row of rows) {
-        row.classList.add(COMMENTED_LINE_CLASS);
+        row.classList.add(lineClass);
       }
 
       const firstRow = rows[0];
@@ -459,18 +462,28 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
 
       const hasModelResponse = thread.messages.some(m => m.author === "model");
       const indicator = document.createElement("span");
-      indicator.className = `${COMMENT_INDICATOR_CLASS}${hasModelResponse ? " has-response" : ""}`;
-      indicator.textContent = hasModelResponse ? "\uD83D\uDCAC\u21A9" : "\uD83D\uDCAC";
-      indicator.title = hasModelResponse
-        ? "Agent responded — click to review"
-        : `Click to edit — ${thread.type === "fix" ? "Fix" : "Question"}: ${thread.messages[0]?.text.slice(0, 60) ?? ""}`;
+
+      if (thread.resolved) {
+        indicator.className = `${COMMENT_INDICATOR_CLASS} resolved`;
+        indicator.textContent = "\u2705";
+        indicator.title = "Resolved — click to review";
+      } else if (hasModelResponse) {
+        indicator.className = `${COMMENT_INDICATOR_CLASS} has-response`;
+        indicator.textContent = "\uD83D\uDCAC\u21A9";
+        indicator.title = "Agent responded — click to review";
+      } else {
+        indicator.className = COMMENT_INDICATOR_CLASS;
+        indicator.textContent = "\uD83D\uDCAC";
+        indicator.title = `Click to edit — ${thread.type === "fix" ? "Fix" : "Question"}: ${thread.messages[0]?.text.slice(0, 60) ?? ""}`;
+      }
+
       indicator.style.cursor = "pointer";
       indicator.style.pointerEvents = "auto";
       indicator.dataset.threadId = thread.id;
       indicator.addEventListener("click", (e) => {
         e.stopPropagation();
         e.preventDefault();
-        setCommentTarget(null); // close new comment form if open
+        setCommentTarget(null);
         setEditingThreadId(thread.id);
       });
       lineCell.style.position = "relative";
@@ -581,6 +594,17 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
           onStateChange({
             ...state,
             threads: state.threads.filter((t) => t.id !== id),
+          });
+          setEditingThreadId(null);
+        }}
+        onResolve={(id) => {
+          const t = state.threads.find((t) => t.id === id);
+          if (!t) return;
+          onStateChange({
+            ...state,
+            threads: state.threads.map((t) =>
+              t.id === id ? { ...t, resolved: !t.resolved } : t
+            ),
           });
           setEditingThreadId(null);
         }}
