@@ -14,6 +14,18 @@ Serves the bundled JavaScript.
 
 **Response:** `application/javascript` — minified Preact bundle.
 
+### `GET /api/meta`
+
+Returns project metadata.
+
+**Response:**
+```json
+{
+  "branch": "main",
+  "project": "my-project"
+}
+```
+
 ### `GET /api/diff`
 
 Returns parsed diff data for all changed files.
@@ -183,6 +195,7 @@ interface Thread {
   type: CommentType;         // "fix" or "question"
   messages: Message[];       // Conversation history
   resolved: boolean;         // Whether thread is resolved
+  codeSnippet?: string;      // Original code at the commented lines
 }
 ```
 

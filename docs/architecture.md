@@ -11,7 +11,7 @@ DiffLoop is an ephemeral review server. Each invocation is a short-lived process
 5. Write output to stdout
 6. Exit
 
-No database, no persistent state. State flows through stdin/stdout JSON between iterations.
+State flows through stdin/stdout JSON between iterations. Between iterations, state is persisted in `.diffloop/state.json` inside the project directory (gitignored).
 
 ## System Diagram
 
@@ -102,8 +102,11 @@ graph TD
     MAIN --> DIFFVIEW[DiffView<br/>Main content]
 
     DIFFVIEW --> |inline| CF[CommentForm<br/>New comments]
-    DIFFVIEW --> |inline| TE[ThreadEditor<br/>Edit comments]
+    DIFFVIEW --> |inline| TE[ThreadEditor<br/>Edit + conversations]
     DIFFVIEW --> |below diff| CT[CommentThread<br/>Thread display]
+    CF --> MDT[MarkdownToolbar<br/>Shared toolbar]
+    TE --> MDT
+    TE --> MT[MessageText<br/>Markdown rendering]
 
     FILETREE --> |click| DIFFVIEW
     TOOLBAR --> |submit| API["/api/submit"]

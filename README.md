@@ -2,9 +2,9 @@
 
 ![DiffLoop](DiffLoop.png)
 
-> Interactive code review UI for AI agents in Claude Code
+> Interactive code review UI for AI coding agents
 
-**Bun 1.3+** | **Preact** | **diff2html** | **33 tests passing**
+**Bun 1.3+** | **Preact** | **diff2html** | **TypeScript**
 
 ---
 
@@ -36,35 +36,31 @@ Agent makes changes → tries to commit
 - **Pre-commit hook** — automatically opens on `git commit`, blocks until approved
 - **Inline comments** — click any line number to add a Fix request or Question
 - **Multi-line selection** — drag, Shift+click (range), Ctrl+click (toggle individual lines)
+- **Thread conversations** — agent responses appear as sequential quotes in threads
+- **Markdown toolbar** — bold, italic, code blocks, links, lists with SVG icons
+- **Resolve / Reopen** — mark threads as done, reopen if needed
 - **Side-by-side & unified** diff view modes
-- **File tree sidebar** — navigate files, see comment badges per file
-- **Review loop** — submit feedback → agent fixes → re-review → approve
+- **File tree sidebar** — navigate files, see comment/response badges per file
+- **Iteration highlighting** — see what changed since last review
+- **Original code context** — thread editor shows the code snippet being discussed
 - **Edit & delete** — click any comment indicator to modify or remove
-- **File collapse** — click file headers, comment badges on collapsed files
 - **Dark theme** — GitHub-dark inspired, easy on the eyes
-- **Zero config** — ephemeral server, no database
+- **Zero config** — ephemeral server, project-local state in `.diffloop/`
 
 ## Quick Start
 
 ### Prerequisites
 
 - [Bun](https://bun.sh) 1.3+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (for the pre-commit hook integration)
 
 ### Install & Build
 
 ```bash
-git clone <repo-url> && cd diffloop
+git clone https://github.com/KYONY/diffloop.git && cd diffloop
 bun install
 bun run build
 ```
-
-### Run Standalone
-
-```bash
-echo '{}' | bun src/cli.ts
-```
-
-Opens browser at `http://localhost:<random-port>` with diffs of your current git changes.
 
 ### Integrate with Claude Code
 
@@ -89,7 +85,17 @@ Add DiffLoop as a pre-commit hook in `~/.claude/settings.json`:
 }
 ```
 
-Now every `git commit` by the agent triggers a code review. See [docs/integration.md](docs/integration.md) for details.
+Replace `/path/to/diffloop` with the actual installation path. Now every `git commit` by the agent triggers a code review.
+
+See [docs/integration.md](docs/integration.md) for full setup details.
+
+### Run Standalone
+
+```bash
+echo '{}' | bun src/cli.ts
+```
+
+Opens browser at `http://localhost:<random-port>` with diffs of your current git changes.
 
 ## Usage
 
@@ -109,7 +115,7 @@ After selecting, choose comment type:
 ![Comment Types](docs/images/comment-types.svg)
 
 - **Fix** — request a code change (agent will modify the code)
-- **Question** — ask about the code (agent will reply in the terminal)
+- **Question** — ask about the code (agent will answer in the thread)
 
 ### Review Actions
 
@@ -118,12 +124,34 @@ After selecting, choose comment type:
 | **Submit Review** | Sends feedback to the agent. Agent processes fixes, then re-opens DiffLoop |
 | **Approve** | Ends the review loop. Commit proceeds |
 
+### Thread Conversations
+
+When the agent responds to your comments, the thread shows a sequential conversation:
+
+1. **Your comment** — the original fix request or question
+2. **Agent response** — what the agent did or answered
+3. **Reply form** — continue the conversation if needed
+
+Use **Resolve** to mark a thread as done. Resolved threads appear dimmed and are excluded from feedback.
+
 ### Keyboard Shortcuts
 
 | Key | Action |
 |-----|--------|
 | `Ctrl+Enter` | Submit comment / Save edit |
 | `Esc` | Cancel comment / Close editor |
+
+## State Persistence
+
+Review state (threads, iteration counter) is stored in `.diffloop/` inside your project directory:
+
+```
+.diffloop/
+├── state.json       # Threads and iteration state
+└── responses.json   # Agent responses (temporary, merged on next iteration)
+```
+
+State survives between iterations and across system reboots. Cleaned up automatically when you approve a commit. The `.diffloop/` directory is gitignored.
 
 ## Architecture
 
@@ -140,37 +168,40 @@ After selecting, choose comment type:
                                       └──────────────┘
 ```
 
-See [docs/architecture.md](docs/architecture.md) for details.
+See [docs/architecture.md](docs/architecture.md) for the full system design.
 
 ## Project Structure
 
 ```
 diffloop/
 ├── src/
-│   ├── cli.ts                 # Entry point: stdin → server → stdout
+│   ├── cli.ts                    # Entry point: stdin → server → stdout
 │   ├── server/
-│   │   ├── index.ts           # HTTP server + API endpoints
-│   │   └── diff.ts            # Git diff collection & parsing
+│   │   ├── index.ts              # HTTP server + API endpoints
+│   │   └── diff.ts               # Git diff collection & parsing
 │   ├── shared/
-│   │   ├── types.ts           # TypeScript interfaces
-│   │   └── state.ts           # State management between iterations
+│   │   ├── types.ts              # TypeScript interfaces
+│   │   └── state.ts              # State management between iterations
 │   └── ui/
-│       ├── app.tsx            # Root Preact component
-│       ├── styles.css         # Dark theme styles
+│       ├── app.tsx               # Root Preact component
+│       ├── styles.css            # Dark theme styles
 │       └── components/
-│           ├── DiffView.tsx   # Diff viewer + inline comments
-│           ├── FileTree.tsx   # Sidebar file navigator
-│           ├── Toolbar.tsx    # Submit / Approve buttons
-│           ├── CommentForm.tsx
-│           ├── CommentThread.tsx
-│           └── ThreadEditor.tsx
-├── test/                      # 33 tests across 5 files
+│           ├── DiffView.tsx      # Diff viewer + inline comments
+│           ├── FileTree.tsx      # Sidebar file navigator
+│           ├── Toolbar.tsx       # Submit / Approve buttons
+│           ├── CommentForm.tsx   # New comment form
+│           ├── CommentThread.tsx # Thread display in panel
+│           ├── ThreadEditor.tsx  # Inline thread editor with conversations
+│           ├── MarkdownToolbar.tsx # Shared markdown editing toolbar
+│           └── MessageText.tsx   # Inline markdown rendering
+├── test/                         # Tests across 5 files
 ├── scripts/
-│   └── pre-commit-hook.sh     # PreToolUse hook for Claude Code
-├── build.ts                   # Bundles UI → dist/
-├── dist/                      # Built output (HTML + JS)
-└── .claude/commands/
-    └── diffloop.md            # Slash command (alternative)
+│   └── pre-commit-hook.sh        # PreToolUse hook for Claude Code
+├── build.ts                      # Bundles UI → dist/
+└── docs/
+    ├── architecture.md           # System design & data flow
+    ├── api.md                    # HTTP API reference
+    └── integration.md            # Claude Code setup guide
 ```
 
 ## API Reference
@@ -203,4 +234,4 @@ bun run dev
 
 ## License
 
-MIT
+[MIT](LICENSE) — KYONY
