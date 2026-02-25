@@ -1,6 +1,7 @@
 import { useState, useRef } from "preact/hooks";
 import type { Thread, CommentType } from "../../shared/types.ts";
 import { MessageText } from "./MessageText.tsx";
+import { MarkdownToolbar } from "./MarkdownToolbar.tsx";
 
 interface Props {
   thread: Thread;
@@ -18,10 +19,9 @@ export function ThreadEditor({ thread, onSave, onDelete, onResolve, onCancel }: 
   const [type, setType] = useState<CommentType>(thread.type);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Split messages into conversation history (read-only) and editable part
-  const userMessages = thread.messages.filter((m) => m.author === "user");
-  const modelMessages = thread.messages.filter((m) => m.author === "model");
-  const hasConversation = thread.messages.length > 1 || modelMessages.length > 0;
+  // All messages except the last user message (which is editable)
+  const historyMessages = thread.messages.filter((m) => m !== lastUserMsg);
+  const hasHistory = historyMessages.length > 0;
 
   function handleSave(e: Event) {
     e.preventDefault();
@@ -43,66 +43,6 @@ export function ThreadEditor({ thread, onSave, onDelete, onResolve, onCancel }: 
     }
   }
 
-  function insertCodeBlock() {
-    const ta = textareaRef.current;
-    if (!ta) return;
-
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selected = text.slice(start, end);
-
-    const before = text.slice(0, start);
-    const after = text.slice(end);
-
-    if (selected) {
-      const newText = `${before}\`\`\`\n${selected}\n\`\`\`${after}`;
-      setText(newText);
-    } else {
-      const newText = `${before}\`\`\`\n\n\`\`\`${after}`;
-      setText(newText);
-      setTimeout(() => {
-        ta.selectionStart = ta.selectionEnd = start + 4;
-        ta.focus();
-      }, 0);
-    }
-  }
-
-  function insertBold() {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selected = text.slice(start, end);
-    const before = text.slice(0, start);
-    const after = text.slice(end);
-    const newText = selected
-      ? `${before}**${selected}**${after}`
-      : `${before}****${after}`;
-    setText(newText);
-    setTimeout(() => {
-      ta.selectionStart = ta.selectionEnd = selected ? end + 4 : start + 2;
-      ta.focus();
-    }, 0);
-  }
-
-  function insertInlineCode() {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selected = text.slice(start, end);
-    const before = text.slice(0, start);
-    const after = text.slice(end);
-    const newText = selected
-      ? `${before}\`${selected}\`${after}`
-      : `${before}\`\`${after}`;
-    setText(newText);
-    setTimeout(() => {
-      ta.selectionStart = ta.selectionEnd = selected ? end + 2 : start + 1;
-      ta.focus();
-    }, 0);
-  }
-
   return (
     <div class="inline-comment-form">
       <div class="inline-comment-location">
@@ -110,26 +50,22 @@ export function ThreadEditor({ thread, onSave, onDelete, onResolve, onCancel }: 
         {thread.endLine && thread.endLine !== thread.line ? `-${thread.endLine}` : ""}
       </div>
 
-      {/* Conversation history */}
-      {hasConversation && (
+      {/* Sequential conversation history */}
+      {hasHistory && (
         <div class="thread-conversation">
-          {thread.messages.map((msg, i) => {
-            // Skip the last user message — it's editable in the form
-            if (msg === lastUserMsg && msg.author === "user") return null;
-            return (
-              <div
-                key={i}
-                class={`thread-msg ${msg.author === "user" ? "thread-msg-user" : "thread-msg-agent"}`}
-              >
-                <span class="thread-msg-label">
-                  {msg.author === "user" ? "You" : "Agent"}
-                </span>
-                <div class="thread-msg-body">
-                  <MessageText text={msg.text} />
-                </div>
+          {historyMessages.map((msg, i) => (
+            <div
+              key={i}
+              class={`thread-msg ${msg.author === "user" ? "thread-msg-user" : "thread-msg-agent"}`}
+            >
+              <span class="thread-msg-label">
+                {msg.author === "user" ? "You" : "Agent"}
+              </span>
+              <div class="thread-msg-body">
+                <MessageText text={msg.text} />
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       )}
 
@@ -152,32 +88,7 @@ export function ThreadEditor({ thread, onSave, onDelete, onResolve, onCancel }: 
               Question
             </button>
           </div>
-          <div class="comment-form-md-tools">
-            <button
-              type="button"
-              class="md-tool-btn"
-              onClick={insertBold}
-              title="Bold (**text**)"
-            >
-              B
-            </button>
-            <button
-              type="button"
-              class="md-tool-btn"
-              onClick={insertInlineCode}
-              title="Inline code (`code`)"
-            >
-              {"<>"}
-            </button>
-            <button
-              type="button"
-              class="md-tool-btn"
-              onClick={insertCodeBlock}
-              title="Code block (```code```)"
-            >
-              {"</>"}
-            </button>
-          </div>
+          <MarkdownToolbar textareaRef={textareaRef} text={text} setText={setText} />
         </div>
         <textarea
           ref={textareaRef}

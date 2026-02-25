@@ -877,13 +877,6 @@ body {
   white-space: pre;
 }
 
-/* Code insert button */
-.code-insert-btn {
-  margin-left: auto;
-  font-family: monospace;
-  font-weight: 700;
-}
-
 /* Resolve button in thread editor */
 .btn-resolve {
   padding: 4px 12px;
@@ -962,25 +955,35 @@ body {
   gap: 8px;
 }
 
-.comment-form-md-tools {
+.md-toolbar {
   display: flex;
-  gap: 2px;
+  align-items: center;
+  gap: 1px;
+}
+
+.md-toolbar-sep {
+  width: 1px;
+  height: 16px;
+  background: #30363d;
+  margin: 0 4px;
+  flex-shrink: 0;
 }
 
 .md-tool-btn {
-  padding: 2px 8px;
-  border: 1px solid #30363d;
+  padding: 2px 6px;
+  border: 1px solid transparent;
   border-radius: 4px;
   background: transparent;
   color: #8b949e;
   font-size: 12px;
-  font-weight: 600;
   cursor: pointer;
-  font-family: monospace;
   line-height: 1.4;
+  min-width: 24px;
+  text-align: center;
 }
 
 .md-tool-btn:hover {
   background: #21262d;
   color: #c9d1d9;
+  border-color: #30363d;
 }

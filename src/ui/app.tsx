@@ -16,13 +16,13 @@ function App() {
     Promise.all([
       fetch("/api/diff").then((r) => r.json() as Promise<DiffData>),
       fetch("/api/state").then((r) => r.json() as Promise<ReviewState>),
-      fetch("/api/meta").then((r) => r.json() as Promise<{ branch: string }>),
+      fetch("/api/meta").then((r) => r.json() as Promise<{ branch: string; project: string }>),
     ]).then(([diff, reviewState, meta]) => {
       setDiffData(diff);
       setState(reviewState);
       setBranch(meta.branch);
       setLoading(false);
-      document.title = "DL — DiffLoop";
+      document.title = `DL — ${meta.project}`;
     });
   }, []);
 

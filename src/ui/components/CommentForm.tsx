@@ -1,5 +1,6 @@
 import { useState, useRef } from "preact/hooks";
 import type { CommentType } from "../../shared/types.ts";
+import { MarkdownToolbar } from "./MarkdownToolbar.tsx";
 
 interface Props {
   onSubmit: (text: string, type: CommentType) => void;
@@ -26,66 +27,6 @@ export function CommentForm({ onSubmit, onCancel }: Props) {
     }
   }
 
-  function insertCodeBlock() {
-    const ta = textareaRef.current;
-    if (!ta) return;
-
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selected = text.slice(start, end);
-
-    const before = text.slice(0, start);
-    const after = text.slice(end);
-
-    if (selected) {
-      const newText = `${before}\`\`\`\n${selected}\n\`\`\`${after}`;
-      setText(newText);
-    } else {
-      const newText = `${before}\`\`\`\n\n\`\`\`${after}`;
-      setText(newText);
-      setTimeout(() => {
-        ta.selectionStart = ta.selectionEnd = start + 4;
-        ta.focus();
-      }, 0);
-    }
-  }
-
-  function insertBold() {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selected = text.slice(start, end);
-    const before = text.slice(0, start);
-    const after = text.slice(end);
-    const newText = selected
-      ? `${before}**${selected}**${after}`
-      : `${before}****${after}`;
-    setText(newText);
-    setTimeout(() => {
-      ta.selectionStart = ta.selectionEnd = selected ? end + 4 : start + 2;
-      ta.focus();
-    }, 0);
-  }
-
-  function insertInlineCode() {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selected = text.slice(start, end);
-    const before = text.slice(0, start);
-    const after = text.slice(end);
-    const newText = selected
-      ? `${before}\`${selected}\`${after}`
-      : `${before}\`\`${after}`;
-    setText(newText);
-    setTimeout(() => {
-      ta.selectionStart = ta.selectionEnd = selected ? end + 2 : start + 1;
-      ta.focus();
-    }, 0);
-  }
-
   return (
     <form class="comment-form" onSubmit={handleSubmit}>
       <div class="comment-form-toolbar">
@@ -107,32 +48,7 @@ export function CommentForm({ onSubmit, onCancel }: Props) {
             Question
           </button>
         </div>
-        <div class="comment-form-md-tools">
-          <button
-            type="button"
-            class="md-tool-btn"
-            onClick={insertBold}
-            title="Bold (**text**)"
-          >
-            B
-          </button>
-          <button
-            type="button"
-            class="md-tool-btn"
-            onClick={insertInlineCode}
-            title="Inline code (`code`)"
-          >
-            {"<>"}
-          </button>
-          <button
-            type="button"
-            class="md-tool-btn"
-            onClick={insertCodeBlock}
-            title="Code block (```code```)"
-          >
-            {"</>"}
-          </button>
-        </div>
+        <MarkdownToolbar textareaRef={textareaRef} text={text} setText={setText} />
       </div>
       <textarea
         ref={textareaRef}

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { join } from "path";
+import { join, basename } from "path";
 import { collectDiffs } from "./server/diff.ts";
 import { createServer } from "./server/index.ts";
 import { buildState } from "./shared/state.ts";
@@ -58,6 +58,7 @@ async function main(): Promise<void> {
   const state = buildState(input);
   const diffData = await collectDiffs();
   const branch = await getGitBranch();
+  const project = basename(process.cwd());
 
   // Try to load built assets
   let htmlContent: string | undefined;
@@ -78,6 +79,7 @@ async function main(): Promise<void> {
     diffData,
     state,
     branch,
+    project,
     htmlContent,
     jsContent,
   });
