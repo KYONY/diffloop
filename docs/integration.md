@@ -105,7 +105,7 @@ Agent makes changes             Agent fixes code
   Tries to commit again...
 ```
 
-State (threads, comments) is preserved between iterations via a temp file (`/tmp/diffloop/<hash>.json`).
+State (threads, comments) is preserved between iterations in a project-local `.diffloop/state.json` file.
 
 ## What the Agent Receives
 
@@ -142,6 +142,6 @@ The hook allows the commit with `permissionDecision: "allow"`. The `git commit` 
 - The hook only fires on `git commit` — other git commands pass through
 - Timeout is 30 minutes — plenty of time for review
 
-## TODO: Thread Responses
+## Thread Responses
 
-Currently, agent answers to Questions appear in the terminal, not in DiffLoop threads. Future improvement: agent writes responses to a state file, hook picks them up on next iteration, and they appear as model messages in the browser threads.
+Agent writes responses to `.diffloop/responses.json` after fixing code. On the next `git commit`, the hook merges them into the thread history as model messages, visible in the browser UI.

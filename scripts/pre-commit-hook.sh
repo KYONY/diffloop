@@ -6,7 +6,6 @@ set -euo pipefail
 # Set DIFFLOOP_SKIP=1 to bypass.
 
 DIFFLOOP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-STATE_DIR="/tmp/diffloop"
 
 # Read hook input from stdin
 INPUT=$(cat)
@@ -24,11 +23,11 @@ if [ -n "${DIFFLOOP_SKIP:-}" ]; then
   exit 0
 fi
 
-# Project-specific state file (threads persist between iterations)
+# Project-local state (threads persist between iterations)
 CWD=$(echo "$INPUT" | jq -r '.cwd // ""')
-PROJECT_HASH=$(echo -n "$CWD" | md5sum | cut -c1-12)
-STATE_FILE="$STATE_DIR/${PROJECT_HASH}.json"
-RESPONSES_FILE="$STATE_DIR/${PROJECT_HASH}-responses.json"
+STATE_DIR="$CWD/.diffloop"
+STATE_FILE="$STATE_DIR/state.json"
+RESPONSES_FILE="$STATE_DIR/responses.json"
 mkdir -p "$STATE_DIR"
 
 # Build stdin for diffloop
