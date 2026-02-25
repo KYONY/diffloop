@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 350" font-family="Menlo, Consolas, monospace">
+  <!-- Background -->
+  <rect width="750" height="350" rx="12" fill="#0d1117"/>
+
+  <!-- Title -->
+  <text x="375" y="30" text-anchor="middle" fill="#c9d1d9" font-size="16" font-weight="bold" font-family="system-ui, sans-serif">Line Selection Methods</text>
+
+  <!-- Click -->
+  <g transform="translate(20, 50)">
+    <text x="100" y="15" text-anchor="middle" fill="#58a6ff" font-size="13" font-weight="bold" font-family="system-ui, sans-serif">Click</text>
+    <rect x="10" y="25" width="180" height="120" rx="4" fill="#161b22" stroke="#30363d"/>
+    <!-- Lines -->
+    <text x="20" y="48" fill="#6e7681" font-size="11">40</text>
+    <text x="50" y="48" fill="#adbac7" font-size="11">const x = 1;</text>
+    <text x="20" y="66" fill="#6e7681" font-size="11">41</text>
+    <text x="50" y="66" fill="#adbac7" font-size="11">const y = 2;</text>
+    <!-- Selected -->
+    <rect x="10" y="71" width="180" height="18" fill="#58a6ff" fill-opacity="0.15"/>
+    <text x="20" y="84" fill="#58a6ff" font-size="11" font-weight="bold">42</text>
+    <text x="50" y="84" fill="#c9d1d9" font-size="11">const z = 3;</text>
+    <text x="20" y="102" fill="#6e7681" font-size="11">43</text>
+    <text x="50" y="102" fill="#adbac7" font-size="11">return z;</text>
+    <text x="20" y="120" fill="#6e7681" font-size="11">44</text>
+    <text x="50" y="120" fill="#adbac7" font-size="11">}</text>
+    <!-- Result -->
+    <rect x="10" y="155" width="180" height="24" rx="4" fill="#1a2332"/>
+    <text x="100" y="171" text-anchor="middle" fill="#58a6ff" font-size="11" font-family="system-ui, sans-serif">lines: [42]</text>
+  </g>
+
+  <!-- Drag -->
+  <g transform="translate(215, 50)">
+    <text x="100" y="15" text-anchor="middle" fill="#3fb950" font-size="13" font-weight="bold" font-family="system-ui, sans-serif">Drag</text>
+    <rect x="10" y="25" width="180" height="120" rx="4" fill="#161b22" stroke="#30363d"/>
+    <text x="20" y="48" fill="#6e7681" font-size="11">40</text>
+    <text x="50" y="48" fill="#adbac7" font-size="11">const x = 1;</text>
+    <text x="20" y="66" fill="#6e7681" font-size="11">41</text>
+    <text x="50" y="66" fill="#adbac7" font-size="11">const y = 2;</text>
+    <!-- Selected range -->
+    <rect x="10" y="71" width="180" height="54" fill="#3fb950" fill-opacity="0.1"/>
+    <rect x="10" y="71" width="3" height="54" fill="#3fb950"/>
+    <text x="20" y="84" fill="#3fb950" font-size="11" font-weight="bold">42</text>
+    <text x="50" y="84" fill="#c9d1d9" font-size="11">const z = 3;</text>
+    <text x="20" y="102" fill="#3fb950" font-size="11" font-weight="bold">43</text>
+    <text x="50" y="102" fill="#c9d1d9" font-size="11">return z;</text>
+    <text x="20" y="120" fill="#3fb950" font-size="11" font-weight="bold">44</text>
+    <text x="50" y="120" fill="#c9d1d9" font-size="11">}</text>
+    <!-- Result -->
+    <rect x="10" y="155" width="180" height="24" rx="4" fill="#1a2332"/>
+    <text x="100" y="171" text-anchor="middle" fill="#3fb950" font-size="11" font-family="system-ui, sans-serif">lines: [42, 43, 44]</text>
+  </g>
+
+  <!-- Shift+Click -->
+  <g transform="translate(410, 50)">
+    <text x="100" y="15" text-anchor="middle" fill="#d29922" font-size="13" font-weight="bold" font-family="system-ui, sans-serif">Shift+Click</text>
+    <rect x="10" y="25" width="180" height="120" rx="4" fill="#161b22" stroke="#30363d"/>
+    <text x="20" y="48" fill="#6e7681" font-size="11">40</text>
+    <text x="50" y="48" fill="#adbac7" font-size="11">const x = 1;</text>
+    <text x="20" y="66" fill="#6e7681" font-size="11">41</text>
+    <text x="50" y="66" fill="#adbac7" font-size="11">const y = 2;</text>
+    <!-- Range -->
+    <rect x="10" y="71" width="180" height="36" fill="#d29922" fill-opacity="0.1"/>
+    <rect x="10" y="71" width="3" height="36" fill="#d29922"/>
+    <text x="20" y="84" fill="#d29922" font-size="11" font-weight="bold">42</text>
+    <text x="50" y="84" fill="#c9d1d9" font-size="11">const z = 3;</text>
+    <text x="20" y="102" fill="#d29922" font-size="11" font-weight="bold">43</text>
+    <text x="50" y="102" fill="#c9d1d9" font-size="11">return z;</text>
+    <text x="20" y="120" fill="#6e7681" font-size="11">44</text>
+    <text x="50" y="120" fill="#adbac7" font-size="11">}</text>
+    <!-- Result -->
+    <rect x="10" y="155" width="180" height="24" rx="4" fill="#1a2332"/>
+    <text x="100" y="171" text-anchor="middle" fill="#d29922" font-size="11" font-family="system-ui, sans-serif">lines: [42, 43]</text>
+  </g>
+
+  <!-- Ctrl+Click -->
+  <g transform="translate(605, 50)">
+    <text x="70" y="15" text-anchor="middle" fill="#f85149" font-size="13" font-weight="bold" font-family="system-ui, sans-serif">Ctrl+Click</text>
+    <rect x="0" y="25" width="130" height="120" rx="4" fill="#161b22" stroke="#30363d"/>
+    <text x="10" y="48" fill="#6e7681" font-size="11">40</text>
+    <text x="35" y="48" fill="#adbac7" font-size="11">const x</text>
+    <!-- Selected -->
+    <rect x="0" y="53" width="130" height="18" fill="#f85149" fill-opacity="0.1"/>
+    <text x="10" y="66" fill="#f85149" font-size="11" font-weight="bold">41</text>
+    <text x="35" y="66" fill="#c9d1d9" font-size="11">const y</text>
+    <text x="10" y="84" fill="#6e7681" font-size="11">42</text>
+    <text x="35" y="84" fill="#adbac7" font-size="11">const z</text>
+    <!-- Selected -->
+    <rect x="0" y="89" width="130" height="18" fill="#f85149" fill-opacity="0.1"/>
+    <text x="10" y="102" fill="#f85149" font-size="11" font-weight="bold">43</text>
+    <text x="35" y="102" fill="#c9d1d9" font-size="11">return z</text>
+    <text x="10" y="120" fill="#6e7681" font-size="11">44</text>
+    <text x="35" y="120" fill="#adbac7" font-size="11">}</text>
+    <!-- Result -->
+    <rect x="0" y="155" width="130" height="24" rx="4" fill="#1a2332"/>
+    <text x="65" y="171" text-anchor="middle" fill="#f85149" font-size="11" font-family="system-ui, sans-serif">lines: [41, 43]</text>
+  </g>
+
+  <!-- Bottom legend -->
+  <text x="375" y="260" text-anchor="middle" fill="#6e7681" font-size="12" font-family="system-ui, sans-serif">Non-contiguous selection displays as: <tspan fill="#c9d1d9">41, 43</tspan> or <tspan fill="#c9d1d9">42-44</tspan> for ranges</text>
+
+  <!-- Instruction row -->
+  <g transform="translate(0, 280)">
+    <rect x="30" y="0" width="690" height="40" rx="6" fill="#161b22" stroke="#30363d"/>
+    <circle cx="55" cy="20" r="8" fill="#58a6ff" fill-opacity="0.2"/>
+    <text x="55" y="24" text-anchor="middle" fill="#58a6ff" font-size="10">1</text>
+    <text x="75" y="24" fill="#c9d1d9" font-size="12" font-family="system-ui, sans-serif">Select lines</text>
+    <text x="195" y="24" fill="#6e7681" font-size="16">→</text>
+    <circle cx="225" cy="20" r="8" fill="#d29922" fill-opacity="0.2"/>
+    <text x="225" y="24" text-anchor="middle" fill="#d29922" font-size="10">2</text>
+    <text x="245" y="24" fill="#c9d1d9" font-size="12" font-family="system-ui, sans-serif">Choose Fix or Question</text>
+    <text x="435" y="24" fill="#6e7681" font-size="16">→</text>
+    <circle cx="465" cy="20" r="8" fill="#3fb950" fill-opacity="0.2"/>
+    <text x="465" y="24" text-anchor="middle" fill="#3fb950" font-size="10">3</text>
+    <text x="485" y="24" fill="#c9d1d9" font-size="12" font-family="system-ui, sans-serif">Write comment</text>
+    <text x="615" y="24" fill="#6e7681" font-size="16">→</text>
+    <circle cx="645" cy="20" r="8" fill="#f85149" fill-opacity="0.2"/>
+    <text x="645" y="24" text-anchor="middle" fill="#f85149" font-size="10">4</text>
+    <text x="665" y="24" fill="#c9d1d9" font-size="12" font-family="system-ui, sans-serif">Submit</text>
+  </g>
+</svg>
