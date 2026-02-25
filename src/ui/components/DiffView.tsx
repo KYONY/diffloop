@@ -28,6 +28,61 @@ interface CommentTarget {
 const SELECTED_LINE_CLASS = "diffloop-line-selected";
 const COMMENTED_LINE_CLASS = "diffloop-line-commented";
 const COMMENT_INDICATOR_CLASS = "diffloop-comment-indicator";
+const ITERATION_CHANGED_CLASS = "diffloop-line-iteration-changed";
+
+/**
+ * Parse a unified diff into a map of filename → set of signed lines ("+content" or "-content").
+ * Used to compare diffs across iterations.
+ */
+function parseDiffLines(rawDiff: string): Map<string, Set<string>> {
+  const result = new Map<string, Set<string>>();
+  let currentFile = "";
+
+  for (const line of rawDiff.split("\n")) {
+    if (line.startsWith("+++ b/")) {
+      currentFile = line.slice(6);
+      if (!result.has(currentFile)) result.set(currentFile, new Set());
+    } else if (line.startsWith("--- a/")) {
+      // skip, we use +++ for the filename
+    } else if (currentFile && line.startsWith("+") && !line.startsWith("+++")) {
+      result.get(currentFile)!.add(line);
+    } else if (currentFile && line.startsWith("-") && !line.startsWith("---")) {
+      result.get(currentFile)!.add(line);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Find lines that are new in currentDiff compared to previousDiff.
+ * Returns map of filename → set of line content strings (with +/- prefix).
+ */
+function findIterationChanges(
+  previousRawDiff: string,
+  currentRawDiff: string
+): Map<string, Set<string>> {
+  const prev = parseDiffLines(previousRawDiff);
+  const curr = parseDiffLines(currentRawDiff);
+  const changes = new Map<string, Set<string>>();
+
+  for (const [file, lines] of curr) {
+    const prevLines = prev.get(file);
+    const changedLines = new Set<string>();
+
+    for (const line of lines) {
+      if (!prevLines || !prevLines.has(line)) {
+        changedLines.add(line);
+      }
+    }
+
+    if (changedLines.size > 0) {
+      changes.set(file, changedLines);
+    }
+  }
+
+  return changes;
+}
 
 /** Format lines like: 5, 8, 12-15 */
 function formatLines(lines: number[]): string {
@@ -419,6 +474,54 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
       lineCell.appendChild(indicator);
     }
   }, [html, state.threads]);
+
+  // Highlight lines changed between review iterations (yellow/orange)
+  useEffect(() => {
+    const container = diffRef.current;
+    if (!container) return;
+
+    // Clear old iteration highlights
+    container
+      .querySelectorAll(`.${ITERATION_CHANGED_CLASS}`)
+      .forEach((el) => el.classList.remove(ITERATION_CHANGED_CLASS));
+
+    if (!state.previousRawDiff) return;
+
+    const changes = findIterationChanges(
+      state.previousRawDiff,
+      diffData.rawUnifiedDiff
+    );
+
+    if (changes.size === 0) return;
+
+    // Walk all file wrappers and mark changed rows
+    const fileWrappers = container.querySelectorAll(".d2h-file-wrapper");
+    for (const wrapper of fileWrappers) {
+      const nameEl = wrapper.querySelector(".d2h-file-name");
+      const filename = nameEl?.textContent?.trim() ?? "";
+      const changedLines = changes.get(filename);
+      if (!changedLines) continue;
+
+      const rows = wrapper.querySelectorAll("tr") as NodeListOf<HTMLElement>;
+      for (const row of rows) {
+        const codeCell = row.querySelector(".d2h-code-line-ctn") as HTMLElement | null;
+        if (!codeCell) continue;
+
+        const content = codeCell.textContent ?? "";
+        // Check if this row is an ins or del line
+        const isIns = row.classList.contains("d2h-ins") ||
+          row.querySelector(".d2h-ins") !== null;
+        const isDel = row.classList.contains("d2h-del") ||
+          row.querySelector(".d2h-del") !== null;
+
+        if (isIns && changedLines.has("+" + content)) {
+          row.classList.add(ITERATION_CHANGED_CLASS);
+        } else if (isDel && changedLines.has("-" + content)) {
+          row.classList.add(ITERATION_CHANGED_CLASS);
+        }
+      }
+    }
+  }, [html, state.previousRawDiff, diffData.rawUnifiedDiff]);
 
   // Render inline thread editor when editing
   useEffect(() => {

@@ -66,6 +66,8 @@ export function createServer(options: ServerOptions): {
             feedback: string;
             state: ReviewState;
           };
+          // Save current diff so next iteration can highlight changes
+          body.state.previousRawDiff = diffData.rawUnifiedDiff;
           resolveDecision?.({
             decision: "deny",
             feedback: body.feedback,

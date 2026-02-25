@@ -42,6 +42,7 @@ export function buildState(input: StdinInput): ReviewState {
   return {
     iteration: prev.iteration + 1,
     threads: prev.threads,
+    previousRawDiff: prev.previousRawDiff,
   };
 }
 

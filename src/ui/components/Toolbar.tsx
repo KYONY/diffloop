@@ -1,3 +1,4 @@
+import { useState } from "preact/hooks";
 import type { ReviewState } from "../../shared/types.ts";
 
 interface Props {
@@ -8,8 +9,17 @@ interface Props {
 export function Toolbar({ state }: Props) {
   const openThreads = state.threads.filter((t) => !t.resolved).length;
   const resolvedThreads = state.threads.filter((t) => t.resolved).length;
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  async function handleApprove() {
+  async function handleCommit() {
+    if (openThreads > 0) {
+      setShowConfirm(true);
+      return;
+    }
+    await doCommit();
+  }
+
+  async function doCommit() {
     await fetch("/api/approve", { method: "POST" });
     window.close();
   }
@@ -39,10 +49,34 @@ export function Toolbar({ state }: Props) {
           Submit Review
           {openThreads > 0 && ` (${openThreads})`}
         </button>
-        <button class="btn btn-approve" onClick={handleApprove}>
-          Approve
+        <button class="btn btn-approve" onClick={handleCommit}>
+          Commit
         </button>
       </div>
+
+      {showConfirm && (
+        <div class="confirm-overlay" onClick={() => setShowConfirm(false)}>
+          <div class="confirm-dialog" onClick={(e) => e.stopPropagation()}>
+            <div class="confirm-title">Unresolved threads</div>
+            <div class="confirm-message">
+              There {openThreads === 1 ? "is" : "are"}{" "}
+              <strong>{openThreads}</strong> unresolved thread
+              {openThreads === 1 ? "" : "s"}. Continue with commit?
+            </div>
+            <div class="confirm-actions">
+              <button
+                class="btn btn-cancel"
+                onClick={() => setShowConfirm(false)}
+              >
+                Keep reviewing
+              </button>
+              <button class="btn btn-approve" onClick={doCommit}>
+                Commit anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

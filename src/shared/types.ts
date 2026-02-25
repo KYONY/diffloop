@@ -21,6 +21,7 @@ export interface Thread {
 export interface ReviewState {
   iteration: number;
   threads: Thread[];
+  previousRawDiff?: string;
 }
 
 export interface FileDiff {

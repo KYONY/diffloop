@@ -83,12 +83,14 @@ function TreeItem({
   depth,
   activeFile,
   commentsByFile,
+  resolvedByFile,
   onFileClick,
 }: {
   node: TreeNode;
   depth: number;
   activeFile: string | null;
   commentsByFile: Map<string, number>;
+  resolvedByFile: Map<string, number>;
   onFileClick: (filename: string) => void;
 }) {
   const [expanded, setExpanded] = useState(true);
@@ -127,6 +129,7 @@ function TreeItem({
                 depth={depth + 1}
                 activeFile={activeFile}
                 commentsByFile={commentsByFile}
+                resolvedByFile={resolvedByFile}
                 onFileClick={onFileClick}
               />
             ))}
@@ -139,7 +142,8 @@ function TreeItem({
   if (isFile) {
     const isActive = activeFile === node.file!.filename;
     const changes = useMemo(() => countChanges(node.file!.rawDiff), [node.file]);
-    const commentCount = commentsByFile.get(node.file!.filename) ?? 0;
+    const unresolvedCount = commentsByFile.get(node.file!.filename) ?? 0;
+    const resolvedCount = resolvedByFile.get(node.file!.filename) ?? 0;
 
     return (
       <div
@@ -151,9 +155,14 @@ function TreeItem({
           {statusIcon(node.file!.status)}
         </span>
         <span class="tree-name">{node.name}</span>
-        {commentCount > 0 && (
-          <span class="tree-comment-badge" title={`${commentCount} open comment(s)`}>
-            {"\uD83D\uDCAC"}{commentCount}
+        {unresolvedCount > 0 && (
+          <span class="tree-badge-unresolved" title={`${unresolvedCount} unresolved thread(s)`}>
+            {"\uD83D\uDCAC"}{unresolvedCount}
+          </span>
+        )}
+        {resolvedCount > 0 && (
+          <span class="tree-badge-resolved" title={`${resolvedCount} resolved thread(s)`}>
+            {"\u2705"}{resolvedCount}
           </span>
         )}
         <span class="tree-changes">
@@ -177,6 +186,7 @@ function TreeItem({
           depth={depth}
           activeFile={activeFile}
           commentsByFile={commentsByFile}
+          resolvedByFile={resolvedByFile}
           onFileClick={onFileClick}
         />
       ))}
@@ -188,11 +198,21 @@ export function FileTree({ files, activeFile, threads, onFileClick }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const tree = useMemo(() => buildTree(files), [files]);
 
-  // Count open comments per file
+  // Count unresolved threads per file
   const commentsByFile = useMemo(() => {
     const map = new Map<string, number>();
     for (const t of threads) {
       if (t.resolved) continue;
+      map.set(t.file, (map.get(t.file) ?? 0) + 1);
+    }
+    return map;
+  }, [threads]);
+
+  // Count resolved threads per file
+  const resolvedByFile = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const t of threads) {
+      if (!t.resolved) continue;
       map.set(t.file, (map.get(t.file) ?? 0) + 1);
     }
     return map;
@@ -230,6 +250,7 @@ export function FileTree({ files, activeFile, threads, onFileClick }: Props) {
               depth={0}
               activeFile={activeFile}
               commentsByFile={commentsByFile}
+              resolvedByFile={resolvedByFile}
               onFileClick={onFileClick}
             />
           ))}

@@ -736,12 +736,20 @@ body {
   color: #a371f7;
 }
 
-/* Comment badge in file tree sidebar */
-.tree-comment-badge {
+/* Thread badges in file tree sidebar */
+.tree-badge-unresolved {
   font-size: 11px;
   color: #d29922;
   flex-shrink: 0;
   margin-left: 4px;
+}
+
+.tree-badge-resolved {
+  font-size: 11px;
+  color: #3fb950;
+  flex-shrink: 0;
+  margin-left: 2px;
+  opacity: 0.7;
 }
 
 .tree-changes {
@@ -777,4 +785,54 @@ body {
 
 .file-tree-list::-webkit-scrollbar-thumb:hover {
   background: #484f58;
+}
+
+/* Lines changed between review iterations (yellow/orange) */
+.diffloop-line-iteration-changed td {
+  background: #3d2e00 !important;
+}
+
+.diffloop-line-iteration-changed td.d2h-code-linenumber,
+.diffloop-line-iteration-changed td.d2h-code-side-linenumber {
+  border-left: 3px solid #d29922 !important;
+}
+
+/* Confirmation dialog */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.confirm-dialog {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 420px;
+  width: 90%;
+}
+
+.confirm-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #d29922;
+  margin-bottom: 12px;
+}
+
+.confirm-message {
+  font-size: 14px;
+  color: #c9d1d9;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }
