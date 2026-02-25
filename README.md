@@ -42,6 +42,8 @@ Agent makes changes → tries to commit
 - **Side-by-side & unified** diff view modes
 - **File tree sidebar** — navigate files, see comment/response/resolved badges per file
 - **Project header** — displays project name, branch, iteration counter, and file count
+- **View full file** — click the folder icon on any file to see its full content with line numbers
+- **Extended diff context** — 10 lines of surrounding code by default (configurable via `DIFFLOOP_CONTEXT`)
 - **Iteration highlighting** — see what changed since last review
 - **Original code context** — thread editor shows the code snippet being discussed
 - **Edit & delete** — click any comment indicator to modify or remove
