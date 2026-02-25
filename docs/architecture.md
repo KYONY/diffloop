@@ -11,7 +11,7 @@ DiffLoop is an ephemeral review server. Each invocation is a short-lived process
 5. Write output to stdout
 6. Exit
 
-State flows through stdin/stdout JSON between iterations. Between iterations, state is persisted in `.diffloop/state.json` inside the project directory (gitignored).
+State flows through stdin/stdout JSON between iterations. Between iterations, state is persisted in `.diffloop/<branch>/state.json` inside the project directory (gitignored), isolated per branch.
 
 ## System Diagram
 

@@ -23,9 +23,11 @@ if [ -n "${DIFFLOOP_SKIP:-}" ]; then
   exit 0
 fi
 
-# Project-local state (threads persist between iterations)
+# Project-local state (threads persist between iterations, isolated per branch)
 CWD=$(echo "$INPUT" | jq -r '.cwd // ""')
-STATE_DIR="$CWD/.diffloop"
+BRANCH=$(git -C "$CWD" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+BRANCH_SAFE=$(echo "$BRANCH" | tr '/' '-')
+STATE_DIR="$CWD/.diffloop/$BRANCH_SAFE"
 STATE_FILE="$STATE_DIR/state.json"
 RESPONSES_FILE="$STATE_DIR/responses.json"
 mkdir -p "$STATE_DIR"
@@ -49,15 +51,16 @@ RESULT=$(cd "$CWD" && echo "$STDIN_JSON" | bun "$DIFFLOOP_DIR/src/cli.ts" 2>/dev
 
 if [ -z "$RESULT" ]; then
   # diffloop failed or was killed — allow commit
-  rm -f "$STATE_FILE"
+  rm -f "$STATE_FILE" "$RESPONSES_FILE"
+  rmdir "$STATE_DIR" 2>/dev/null || true
   exit 0
 fi
 
 DECISION=$(echo "$RESULT" | jq -r '.decision // ""')
 
 if [ "$DECISION" = "allow" ]; then
-  # Approved — clean up and allow commit
-  rm -f "$STATE_FILE" "$RESPONSES_FILE"
+  # Approved — clean up branch state dir and allow commit
+  rm -rf "$STATE_DIR"
   jq -n '{
     hookSpecificOutput: {
       hookEventName: "PreToolUse",

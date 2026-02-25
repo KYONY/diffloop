@@ -105,7 +105,7 @@ Agent makes changes             Agent fixes code
   Tries to commit again...
 ```
 
-State (threads, comments) is preserved between iterations in a project-local `.diffloop/state.json` file.
+State (threads, comments) is preserved between iterations in a project-local `.diffloop/<branch>/state.json` file, isolated per branch.
 
 ## What the Agent Receives
 
@@ -144,4 +144,4 @@ The hook allows the commit with `permissionDecision: "allow"`. The `git commit` 
 
 ## Thread Responses
 
-Agent writes responses to `.diffloop/responses.json` after fixing code. On the next `git commit`, the hook merges them into the thread history as model messages, visible in the browser UI.
+Agent writes responses to `.diffloop/<branch>/responses.json` after fixing code. On the next `git commit`, the hook merges them into the thread history as model messages, visible in the browser UI.

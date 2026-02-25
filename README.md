@@ -146,15 +146,20 @@ Use **Resolve** to mark a thread as done. Resolved threads appear dimmed and are
 
 ## State Persistence
 
-Review state (threads, iteration counter) is stored in `.diffloop/` inside your project directory:
+Review state (threads, iteration counter) is stored in `.diffloop/` inside your project directory, isolated per branch:
 
 ```
 .diffloop/
-├── state.json       # Threads and iteration state
-└── responses.json   # Agent responses (temporary, merged on next iteration)
+├── main/
+│   ├── state.json       # Threads and iteration state
+│   └── responses.json   # Agent responses (temporary, merged on next iteration)
+├── feature-auth/
+│   ├── state.json
+│   └── responses.json
+└── ...
 ```
 
-State survives between iterations and across system reboots. Cleaned up automatically when you approve a commit. The `.diffloop/` directory is gitignored.
+Each branch gets its own state directory — switching branches won't mix up review threads. State survives between iterations and across system reboots. Cleaned up automatically when you approve a commit. The `.diffloop/` directory is gitignored.
 
 ## Architecture
 
