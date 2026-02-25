@@ -12,26 +12,38 @@ interface Props {
 }
 
 export function ThreadEditor({ thread, onSave, onDelete, onResolve, onCancel }: Props) {
-  const lastUserMsg = [...thread.messages]
-    .reverse()
-    .find((m) => m.author === "user");
+  const hasAgentResponse = thread.messages.some((m) => m.author === "model");
+
+  // If agent responded: all messages are read-only quotes, form is for NEW reply
+  // If no agent response yet: last user message is editable in form
+  const lastUserMsg = !hasAgentResponse
+    ? [...thread.messages].reverse().find((m) => m.author === "user")
+    : null;
+
   const [text, setText] = useState(lastUserMsg?.text ?? "");
   const [type, setType] = useState<CommentType>(thread.type);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // All messages except the last user message (which is editable)
-  const historyMessages = thread.messages.filter((m) => m !== lastUserMsg);
-  const hasHistory = historyMessages.length > 0;
+  // Messages to show as read-only quotes
+  const quotedMessages = hasAgentResponse
+    ? thread.messages // all messages as quotes
+    : thread.messages.filter((m) => m !== lastUserMsg); // all except editable
 
   function handleSave(e: Event) {
     e.preventDefault();
     if (!text.trim()) return;
 
-    const updatedMessages = thread.messages.map((m) =>
-      m === lastUserMsg ? { ...m, text: text.trim() } : m
-    );
-
-    onSave({ ...thread, type, messages: updatedMessages });
+    if (hasAgentResponse) {
+      // Add new user message to the thread
+      const newMsg = { author: "user" as const, text: text.trim(), timestamp: Date.now() };
+      onSave({ ...thread, type, messages: [...thread.messages, newMsg] });
+    } else {
+      // Edit existing user message
+      const updatedMessages = thread.messages.map((m) =>
+        m === lastUserMsg ? { ...m, text: text.trim() } : m
+      );
+      onSave({ ...thread, type, messages: updatedMessages });
+    }
   }
 
   function handleKeyDown(e: KeyboardEvent) {
@@ -50,10 +62,10 @@ export function ThreadEditor({ thread, onSave, onDelete, onResolve, onCancel }: 
         {thread.endLine && thread.endLine !== thread.line ? `-${thread.endLine}` : ""}
       </div>
 
-      {/* Sequential conversation history */}
-      {hasHistory && (
+      {/* Sequential conversation as marked quotes */}
+      {quotedMessages.length > 0 && (
         <div class="thread-conversation">
-          {historyMessages.map((msg, i) => (
+          {quotedMessages.map((msg, i) => (
             <div
               key={i}
               class={`thread-msg ${msg.author === "user" ? "thread-msg-user" : "thread-msg-agent"}`}
@@ -69,7 +81,7 @@ export function ThreadEditor({ thread, onSave, onDelete, onResolve, onCancel }: 
         </div>
       )}
 
-      {/* Editable form */}
+      {/* Form: new reply (if agent responded) or edit (if no response yet) */}
       <form class="comment-form" onSubmit={handleSave}>
         <div class="comment-form-toolbar">
           <div class="comment-form-type">
@@ -96,6 +108,7 @@ export function ThreadEditor({ thread, onSave, onDelete, onResolve, onCancel }: 
           value={text}
           onInput={(e) => setText((e.target as HTMLTextAreaElement).value)}
           onKeyDown={handleKeyDown}
+          placeholder={hasAgentResponse ? "Reply or resolve..." : "Describe what should be changed..."}
           rows={3}
           autoFocus
         />
