@@ -83,10 +83,11 @@ async function getUntrackedDiff(): Promise<string> {
   return diffs.join("\n");
 }
 
-export async function collectDiffs(): Promise<DiffData> {
+export async function collectDiffs(contextLines = 10): Promise<DiffData> {
+  const ctx = `-U${contextLines}`;
   const [unstaged, staged, untracked] = await Promise.all([
-    exec(["git", "diff"]),
-    exec(["git", "diff", "--staged"]),
+    exec(["git", "diff", ctx]),
+    exec(["git", "diff", "--staged", ctx]),
     getUntrackedDiff(),
   ]);
 

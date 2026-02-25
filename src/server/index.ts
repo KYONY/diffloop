@@ -27,7 +27,7 @@ export function createServer(options: ServerOptions): {
 
   const server = Bun.serve({
     port: port ?? 0,
-    fetch(req) {
+    async fetch(req) {
       const url = new URL(req.url);
 
       // Serve HTML
@@ -82,6 +82,20 @@ export function createServer(options: ServerOptions): {
           });
           return Response.json({ ok: true });
         })();
+      }
+
+      // API: read file content for full-file viewer
+      if (url.pathname === "/api/file" && req.method === "GET") {
+        const filePath = url.searchParams.get("path");
+        if (!filePath) {
+          return Response.json({ error: "path required" }, { status: 400 });
+        }
+        try {
+          const content = await Bun.file(filePath).text();
+          return Response.json({ content, path: filePath });
+        } catch {
+          return Response.json({ error: "file not found" }, { status: 404 });
+        }
       }
 
       return new Response("Not Found", { status: 404 });

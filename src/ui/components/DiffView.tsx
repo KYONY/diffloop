@@ -10,6 +10,7 @@ import type {
 import { CommentForm } from "./CommentForm.tsx";
 import { CommentThread } from "./CommentThread.tsx";
 import { ThreadEditor } from "./ThreadEditor.tsx";
+import { FileViewer } from "./FileViewer.tsx";
 
 interface Props {
   diffData: DiffData;
@@ -114,6 +115,7 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
     null
   );
   const [editingThreadId, setEditingThreadId] = useState<string | null>(null);
+  const [viewingFile, setViewingFile] = useState<string | null>(null);
   const diffRef = useRef<HTMLDivElement>(null);
   const formContainerRef = useRef<HTMLElement | null>(null);
   const editorContainerRef = useRef<HTMLElement | null>(null);
@@ -384,6 +386,21 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
       chevron.className = "diffloop-collapse-chevron";
       chevron.textContent = "\u25BE ";
       header.insertBefore(chevron, header.firstChild);
+
+      // Add "View file" button
+      const nameEl = header.querySelector(".d2h-file-name");
+      const filename = nameEl?.textContent?.trim() ?? "";
+      if (filename) {
+        const viewBtn = document.createElement("button");
+        viewBtn.className = "view-file-btn";
+        viewBtn.title = "View full file";
+        viewBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.5A1.5 1.5 0 012.5 1h3.379a1.5 1.5 0 011.06.44l1.122 1.12A1.5 1.5 0 009.121 3H13.5A1.5 1.5 0 0115 4.5v8a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-10zM2.5 2a.5.5 0 00-.5.5v10a.5.5 0 00.5.5h11a.5.5 0 00.5-.5v-8a.5.5 0 00-.5-.5H9.121a.5.5 0 01-.354-.146L7.354 2.44A.5.5 0 007 2.293V2H2.5z"/></svg>`;
+        viewBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          setViewingFile(filename);
+        });
+        header.appendChild(viewBtn);
+      }
     }
   }, [html]);
 
@@ -706,6 +723,13 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
       <div class="diff-output" ref={diffRef}>
         <div dangerouslySetInnerHTML={{ __html: html }} />
       </div>
+
+      {viewingFile && (
+        <FileViewer
+          path={viewingFile}
+          onClose={() => setViewingFile(null)}
+        />
+      )}
 
       {state.threads.length > 0 && (
         <div class="threads-panel">

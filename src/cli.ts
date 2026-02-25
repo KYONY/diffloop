@@ -58,7 +58,8 @@ async function getGitBranch(): Promise<string> {
 async function main(): Promise<void> {
   const input = await readStdin();
   const state = buildState(input);
-  const diffData = await collectDiffs();
+  const contextLines = parseInt(process.env.DIFFLOOP_CONTEXT || "10", 10);
+  const diffData = await collectDiffs(contextLines);
   const branch = await getGitBranch();
   const project = basename(process.cwd());
 
