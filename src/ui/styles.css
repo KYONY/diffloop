@@ -862,6 +862,16 @@ body {
   justify-content: flex-end;
 }
 
+/* Inline code in messages */
+.inline-code {
+  background: #1f2937;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: "SF Mono", "Fira Code", Menlo, monospace;
+  font-size: 0.9em;
+  color: #e5c07b;
+}
+
 /* Code block in messages */
 .code-block {
   background: #0d1117;
@@ -899,6 +909,22 @@ body {
   flex-shrink: 0;
   margin-left: 4px;
   font-weight: 600;
+}
+
+/* Original code snippet in thread */
+.thread-code-snippet {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-left: 3px solid #484f58;
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  font-family: "SF Mono", "Fira Code", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #8b949e;
+  overflow-x: auto;
+  white-space: pre;
 }
 
 /* Thread conversation in editor */

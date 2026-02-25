@@ -62,6 +62,13 @@ export function ThreadEditor({ thread, onSave, onDelete, onResolve, onCancel }: 
         {thread.endLine && thread.endLine !== thread.line ? `-${thread.endLine}` : ""}
       </div>
 
+      {/* Original code snippet */}
+      {thread.codeSnippet && (
+        <pre class="thread-code-snippet">
+          <code>{thread.codeSnippet}</code>
+        </pre>
+      )}
+
       {/* Sequential conversation as marked quotes */}
       {quotedMessages.length > 0 && (
         <div class="thread-conversation">

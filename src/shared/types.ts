@@ -16,6 +16,7 @@ export interface Thread {
   type: CommentType;
   messages: Message[];
   resolved: boolean;
+  codeSnippet?: string;
 }
 
 export interface ReviewState {

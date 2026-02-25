@@ -629,10 +629,25 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
     };
   }, [editingThreadId, state.threads]);
 
+  function extractCodeFromRows(file: string, lines: number[]): string {
+    const container = diffRef.current;
+    if (!container) return "";
+    const fileWrapper = findFileWrapper(container, file);
+    if (!fileWrapper) return "";
+    const rows = getRowsByLines(fileWrapper, lines);
+    return rows
+      .map((row) => {
+        const codeCell = row.querySelector(".d2h-code-line-ctn");
+        return codeCell?.textContent ?? "";
+      })
+      .join("\n");
+  }
+
   function addThread(text: string, type: CommentType) {
     if (!commentTarget) return;
 
     const sorted = [...commentTarget.lines].sort((a, b) => a - b);
+    const codeSnippet = extractCodeFromRows(commentTarget.file, sorted);
 
     const thread: Thread = {
       id: `t-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -643,6 +658,7 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
       type,
       messages: [{ author: "user", text, timestamp: Date.now() }],
       resolved: false,
+      codeSnippet: codeSnippet || undefined,
     };
 
     onStateChange({
