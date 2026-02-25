@@ -457,10 +457,13 @@ export function DiffView({ diffData, state, onStateChange }: Props) {
       )
         continue;
 
+      const hasModelResponse = thread.messages.some(m => m.author === "model");
       const indicator = document.createElement("span");
-      indicator.className = COMMENT_INDICATOR_CLASS;
-      indicator.textContent = "\uD83D\uDCAC";
-      indicator.title = `Click to edit — ${thread.type === "fix" ? "Fix" : "Question"}: ${thread.messages[0]?.text.slice(0, 60) ?? ""}`;
+      indicator.className = `${COMMENT_INDICATOR_CLASS}${hasModelResponse ? " has-response" : ""}`;
+      indicator.textContent = hasModelResponse ? "\uD83D\uDCAC\u21A9" : "\uD83D\uDCAC";
+      indicator.title = hasModelResponse
+        ? "Agent responded — click to review"
+        : `Click to edit — ${thread.type === "fix" ? "Fix" : "Question"}: ${thread.messages[0]?.text.slice(0, 60) ?? ""}`;
       indicator.style.cursor = "pointer";
       indicator.style.pointerEvents = "auto";
       indicator.dataset.threadId = thread.id;
