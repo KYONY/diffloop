@@ -17,6 +17,8 @@ async function readStdin(): Promise<StdinInput> {
 }
 
 function openBrowser(url: string): void {
+  if (process.env.DIFFLOOP_NO_BROWSER) return;
+
   const platform = process.platform;
   const cmd =
     platform === "darwin"

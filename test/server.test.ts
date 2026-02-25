@@ -118,7 +118,10 @@ describe("HTTP server", () => {
     expect(decision).toEqual({
       decision: "deny",
       feedback: "## Review\n- fix: change var name at foo.ts:5",
-      state: submitState,
+      state: {
+        ...submitState,
+        previousRawDiff: mockDiff.rawUnifiedDiff,
+      },
     });
   });
 
