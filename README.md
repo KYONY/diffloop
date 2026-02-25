@@ -36,11 +36,12 @@ Agent makes changes → tries to commit
 - **Pre-commit hook** — automatically opens on `git commit`, blocks until approved
 - **Inline comments** — click any line number to add a Fix request or Question
 - **Multi-line selection** — drag, Shift+click (range), Ctrl+click (toggle individual lines)
-- **Thread conversations** — agent responses appear as sequential quotes in threads
-- **Markdown toolbar** — bold, italic, code blocks, links, lists with SVG icons
+- **Thread conversations** — agent responses appear inline, continue the discussion across iterations
+- **Markdown support** — toolbar with bold, italic, strikethrough, inline code, code blocks, links, blockquotes, bullet/numbered/task lists; messages render with inline markdown formatting
 - **Resolve / Reopen** — mark threads as done, reopen if needed
 - **Side-by-side & unified** diff view modes
-- **File tree sidebar** — navigate files, see comment/response badges per file
+- **File tree sidebar** — navigate files, see comment/response/resolved badges per file
+- **Project header** — displays project name, branch, iteration counter, and file count
 - **Iteration highlighting** — see what changed since last review
 - **Original code context** — thread editor shows the code snippet being discussed
 - **Edit & delete** — click any comment indicator to modify or remove
@@ -194,7 +195,7 @@ diffloop/
 │           ├── ThreadEditor.tsx  # Inline thread editor with conversations
 │           ├── MarkdownToolbar.tsx # Shared markdown editing toolbar
 │           └── MessageText.tsx   # Inline markdown rendering
-├── test/                         # Tests across 5 files
+├── test/                         # Tests across 7 files
 ├── scripts/
 │   └── pre-commit-hook.sh        # PreToolUse hook for Claude Code
 ├── build.ts                      # Bundles UI → dist/
